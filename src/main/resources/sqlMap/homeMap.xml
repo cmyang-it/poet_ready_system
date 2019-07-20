@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.HomeMapper">
+
+    <!--通过id获取小说信息-->
+    <select id="getNovelById" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id WHERE pn.check_status=1 AND pn.novel_id=#{novelId}
+    </select>
+
+    <!--获取点击-->
+    <select id="getNovelClick" resultType="java.lang.Integer">
+        SELECT novel_click FROM prs_novel_ext_info WHERE novel_id=#{novelId}
+    </select>
+
+    <!--增加点击-->
+    <update id="addClick" >
+        UPDATE prs_novel_ext_info  SET novel_click=#{novelClick},update_time=now() WHERE novel_id=#{novelId}
+    </update>
+
+    <!--获得最新的五条章节记录-->
+    <select id="queryFiveChapter" resultType="com.sinocontact.app.entity.Chapter">
+        SELECT * FROM prs_chapter WHERE  novel_id=#{novelId} ORDER BY create_time DESC LIMIT 0,5
+    </select>
+
+    <!--获得章节记录-->
+    <select id="queryChapterList" resultType="com.sinocontact.app.entity.Chapter">
+        SELECT chapter_id,chapter_name FROM prs_chapter WHERE  novel_id=#{novelId} ORDER BY chapter_id
+    </select>
+
+    <!--通过小说id获取小说的用户评论-->
+    <select id="getNovelComment" resultType="com.sinocontact.app.entity.Comment">
+        SELECT pci.*,pu.nickname FROM prs_comment_info AS pci LEFT JOIN prs_user AS pu ON pci.user_id=pu.user_id WHERE pci.check_status=1 AND pci.novel_id=#{novelId} ORDER BY pci.user_comment_time DESC LIMIT 0,4;
+    </select>
+
+    <!--通过用户id获取用户推荐次数-->
+    <select id="queryRecommendNumById" resultType="java.lang.Integer">
+        SELECT recommend_times FROM prs_user WHERE user_id=#{userId} AND status=0
+    </select>
+
+    <!--更新小说推荐数-->
+    <update id="updateRecommendById">
+        UPDATE prs_novel_ext_info SET novel_recommend=novel_recommend+1,update_time=now() WHERE novel_id=#{novelId}
+    </update>
+    <!--通过id更新用户每日推荐次数-->
+    <update id="updateUserRecommendNum" >
+        UPDATE prs_user SET recommend_times=recommend_times-1,update_time=now() WHERE user_id=#{userId}
+    </update>
+
+    <!--通过小说id和用户id判断小说是否在用户书架中-->
+    <select id="checkBookCase" resultType="java.lang.Integer">
+        SELECT COUNT(novel_id) FROM prs_user_novel WHERE user_id=#{userId} AND novel_id=#{novelId} AND status=0
+    </select>
+
+    <!--添加小说到用户书架-->
+    <insert id="addBookCase">
+        INSERT INTO prs_user_novel(novel_id,user_id,chapter_id,create_time,status) VALUES(#{novelId},#{userId},#{chapterId},now(),0)
+    </insert>
+
+    <!--更新小说书架信息-->
+    <update id="updateBookCase">
+        UPDATE prs_user_novel SET chapter_id=#{chapterId},update_time=now() WHERE user_id=#{userId} AND novel_id=#{novelId} AND status=0
+    </update>
+
+    <!--获取小说章节信息-->
+    <select id="getChapterInfo" resultType="com.sinocontact.app.entity.Chapter">
+        SELECT * FROM prs_chapter WHERE novel_id=#{novelId} AND chapter_id=#{chapterId} AND status=0
+    </select>
+
+    <!--是否存在上一章-->
+    <select id="previousChapterCount" resultType="java.lang.Integer">
+        SELECT COUNT(chapter_id) FROM prs_chapter WHERE novel_id=#{novelId} AND <![CDATA[ chapter_id < #{chapterId} ]]> ORDER BY chapter_id DESC LIMIT 0,1
+    </select>
+
+    <!--获取上一章小说章节信息-->
+    <select id="previousChapter" resultType="com.sinocontact.app.entity.Chapter">
+        SELECT * FROM prs_chapter WHERE novel_id=#{novelId} AND <![CDATA[ chapter_id < #{chapterId} ]]> ORDER BY chapter_id DESC LIMIT 0,1
+    </select>
+
+    <!--是否存在下一章-->
+    <select id="nextChapterCount" resultType="java.lang.Integer">
+        SELECT COUNT(chapter_id) FROM prs_chapter WHERE novel_id=#{novelId} AND <![CDATA[ chapter_id > #{chapterId} ]]> ORDER BY chapter_id ASC LIMIT 0,1
+    </select>
+
+    <!--获取下一章小说章节信息-->
+    <select id="nextChapter" resultType="com.sinocontact.app.entity.Chapter">
+        SELECT * FROM prs_chapter WHERE novel_id=#{novelId} AND <![CDATA[ chapter_id > #{chapterId} ]]> ORDER BY chapter_id ASC LIMIT 0,1
+    </select>
+
+    <!--更新用户每日推荐次数-->
+    <update id="updateRecommendTimes">
+        UPDATE prs_user SET recommend_times=3,update_time=now() WHERE  <![CDATA[ recommend_times < 3]]>
+    </update>
+
+    <!--保存用户评论-->
+    <insert id="saveComment">
+        INSERT INTO prs_comment_info(novel_id,user_id,user_comment_info,user_comment_time,check_status,create_time)
+        VALUE (#{novelId},#{userId},#{comment},now(),1,now())
+    </insert>
+
+</mapper>

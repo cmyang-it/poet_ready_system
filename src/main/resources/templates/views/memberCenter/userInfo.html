@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">设置我的资料</div>
+                <div class="layui-card-body" pad15>
+
+                    <div class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">我的角色</label>
+                            <#if user.role == 1 && user.applyAuthorStatus == 0>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="role" value="普通用户" readonly  class="layui-input" required>
+                                </div>
+                                     <div class="layui-btn layui-btn-primary" id="applyForAuthor">申请成为作者</div>
+                            </#if>
+                            <#if user.role == 1 && user.applyAuthorStatus == 1>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="role" value="普通用户" readonly  class="layui-input" required>
+                                </div>
+                                <div class="layui-btn layui-btn-primary layui-btn-disabled">申请已提交</div>
+                            </#if>
+                            <#if user.role == 10>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="role" value="作者" readonly  class="layui-input" required>
+                                    </div>
+                            </#if>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用户名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="username" id="username" value="${user.account!}" class="layui-input" lay-verify="required" autocomplete="off" placeholder="请输入用户名">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">请填写6-12位字母或数字</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">密码</label>
+                            <div class="layui-input-inline">
+                                <input type="password" name="password" id="password" readonly  value="${user.password!}" class="layui-input" required>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">昵称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="nickname" value="${user.nickname!}" id="nickname"  lay-verify="required" autocomplete="off" placeholder="请输入昵称" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="cellphone" id="phoneNumber" value="${user.phoneNumber!}" readonly lay-verify="phone" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="setmyinfo" id="revise_ok">确认修改</button>
+                                <button type="reset" class="layui-btn layui-btn-primary" id="fill_again">重新填写</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+<script type="text/javascript">
+
+    var isAccountStatus = false;
+    var user  = '${user}';
+    var jsonUser  = JSON.parse(user);
+    layui.use(['layer','form'], function() {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            form = layui.form;
+        //校验用户名是否重复
+        $("#username").blur(function () {
+            var account = $("#username").val();
+            if (checkIsNull($.trim(account))){
+                return;
+            }
+            console.log(account);
+            if (!checkIsNull(account)){
+                $.ajax({
+                    url : '${ctx}/memberCenter/checkAccount',
+                    type : 'post',
+                    data : {
+                        'account' : account
+                    },
+                    dataType : 'json',
+                    success : function (resp) {
+                        if (resp.code === -1){
+                            layer.msg("用户名已存在！");
+                            setAccountStatus(true);
+                        }else{
+                            setAccountStatus(false);
+                        }
+                    },
+                    error : function (error) {
+                        layer.msg('服务器繁忙，请稍后再试', {
+                            offset: '15px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                })
+            }
+        });
+
+        //点击了重新填写
+        $("#fill_again").click(function () {
+           $("#username").val(jsonUser.account);
+           $("#nickname").val(jsonUser.nickname);
+        });
+
+        //点击了确认修改
+        $("#revise_ok").click(function () {
+
+            //账号
+            var account = $("#username").val();
+            //昵称
+            var nickname = $("#nickname").val();
+            //用户名正则，6到12位（字母，数字）
+            var uPattern = /^[a-zA-Z0-9]{6,12}$/;
+
+            if (checkIsNull($.trim(nickname))){
+                layer.msg("昵称不能为空！",{icon:5,time:1000});
+                return;
+            }
+
+            if (isAccountStatus) {
+                layer.msg("用户名已存在！",{icon : 5,time:1000});
+                return;
+            }
+
+            if (!uPattern.test(account)){
+                layer.msg("用户名格式不正确！",{icon : 5,time:1000});
+                return;
+            }
+
+            if (nickname.length > 10) {
+                layer.msg("昵称过长！",{icon:5,time:1000});
+                return;
+            }
+
+            $.ajax({
+                url : '${ctx}/memberCenter/updateUserInfo',
+                type: 'post',
+                data : {
+                    'account' : account,
+                    'nickname' : nickname
+                },
+                dataType: 'json',
+                success : function (resp) {
+                    if (resp.code === 0){
+                        layer.msg("更新成功！",{icon:1,time:1200},function () {
+                            location.reload();
+                        });
+                    } else{
+                        layer.msg("信息修改失败，请稍后再试！",{icon:5,time:1000});
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+
+
+        });
+
+        //点击了申请成为作者按钮
+        $("#applyForAuthor").click(function () {
+            console.log(jsonUser);
+            if (jsonUser.applyAuthorStatus == 1){
+                layer.msg("请不要重复提交申请！",{icon : 5,time : 1000});
+                return;
+            }
+            layer.confirm('确定要申请成为作者?', function(index){
+                $.ajax({
+                    url : '${ctx}/memberCenter/applyForAuthor',
+                    type : 'get',
+                    dataType : 'json',
+                    success : function (resp) {
+                        if (resp.code === 0){
+                            // window.location.href = "${ctx}/memberCenter/baseInfo";
+                            layer.msg("申请提交成功！",{icon : 1,time : 1000});
+                            $("#applyForAuthor").addClass("layui-btn-disabled");
+                            $("#applyForAuthor").text("申请已经提交");
+                            $("#applyForAuthor").attr("disabled",true);
+                        } else{
+                            layer.msg("申请失败，请稍后再试！",{icon : 5 , time : 1000});
+                        }
+                    },
+                    error : function () {
+                        layer.msg('服务器繁忙，请稍后再试', {
+                            offset: '15px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                })
+            });
+
+        });
+
+    });
+
+    //=================================COMMON====================================
+
+
+    function checkIsNull(val) {
+        return val === "" || val === undefined || val === null;
+    }
+
+    function setAccountStatus(status) {
+        isAccountStatus = status;
+    }
+
+  </script>
+</body>
+</html>
+

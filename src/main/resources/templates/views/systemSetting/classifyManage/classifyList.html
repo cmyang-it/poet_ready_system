@@ -1,0 +1,297 @@
+
+<#include "/common/common.html" >
+<!DOCTYPE html>
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+
+<!--分类列表页-->
+<div class="layui-fluid" id="dataTable">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-md12">
+      <div class="layui-card">
+        <div class="layui-card-header">小说分类</div>
+        <div class="layui-card-body">
+          <div style="padding-bottom: 10px;">
+            <button class="layui-btn layuiadmin-btn-admin" data-type="add" onclick="addType();">添加分类</button>
+          </div>
+          <table class="layui-hide" id="novelTypeTable" lay-filter="test-table-toolbar"></table>
+          <script type="text/html" id="options">
+            <a class="layui-btn layui-btn-xs" onclick="editType({{d.typeId}},'{{d.typeName}}');">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="delNovelType({{d.typeId}});">删除</a>
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--分类编辑页面-->
+<div class="layui-fluid layui-hide" id="dataTable3">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">添加分类</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space10 layui-form-item">
+                        <div class="layui-col-lg6">
+                            <label class="layui-form-label">分类名称：</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="addTypeName" id="addTypeName" lay-verify="required" placeholder="请输入分类名称" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn"  id="addSubmit">立即提交</button>
+                                <button class="layui-btn layui-btn-primary" id="addBack">返回列表</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--分类编辑页面-->
+<div class="layui-fluid layui-hide" id="dataTable2">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">编辑分类</div>
+                <div class="layui-card-body">
+                <input type="hidden" id="typeId" name="typeId">
+                <div class="layui-row layui-col-space10 layui-form-item">
+                    <div class="layui-col-lg6">
+                        <label class="layui-form-label">分类名称：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="typeName" id="typeName" lay-verify="required" placeholder="请输入分类名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn"  id="editSubmit">立即提交</button>
+                            <button class="layui-btn layui-btn-primary" id="editBack">返回列表</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+
+<script type="text/javascript">
+
+    layui.config({
+      base: '${ctx}/layuiadmin/' //静态资源所在路径
+    }).extend({
+      index: 'lib/index' //主入口模块
+    }).use(['table','layer'], function() {
+      var $ = layui.jquery,
+              table = layui.table,
+              layer = layui.layer;
+
+      //表单事件
+      table.render({
+          elem :"#novelTypeTable",
+          url : "${ctx}/classifyManage/novelTypeList",
+          title: '用户数据表',
+          cols: [[
+                  //开启序号，与field无关
+                  {field:'p', title:'序号', width:100, align: 'center',type:'numbers',unresize: true,sort:true}
+                  ,{field:'typeName', title:'类型名称', width:200, align: 'center',unresize: true}
+                  ,{field:'createTime', title:'创建时间', width:200, align: 'center',unresize: true}
+                  ,{field:'updateTime', title:'更新时间', width:200 ,align: 'center',unresize: true}
+                  ,{fixed: 'right', title:'操作', toolbar: '#options',align:'center', width:200,unresize: true}
+          ]],
+          page: true,//开启分页
+          limits : [10,20,50,100],
+          limit : 10,
+          id : 'tableReload',
+          text : {
+            none : '暂无数据'
+          }
+      });
+
+      //编辑商品页面返回列表
+      $("#editBack").click(function () {
+         $("#dataTable2").addClass('layui-hide');
+         $("#dataTable").removeClass('layui-hide');
+      });
+
+      //添加商品页面返回列表
+      $("#addBack").click(function () {
+          $("#dataTable3").addClass('layui-hide');
+          $("#dataTable").removeClass('layui-hide');
+      });
+
+      //编辑分类页面提交信息
+      $("#editSubmit").click(function () {
+          var typeId = $("#typeId").val();
+          var typeName = $("#typeName").val();
+
+          $.ajax({
+              url : '${ctx}/classifyManage/updateType',
+              type: 'post',
+              dataType : 'json',
+              data : {
+                  typeId : typeId,
+                  typeName : typeName
+              },
+              success:function (resp) {
+                  console.log(resp.code);
+                  if (resp.code === 0) {
+                      layer.msg('更新分类成功',{
+                          offset : '165px',
+                          icon : 1,
+                          time : 1200
+                      },function () {
+                          location.href='${ctx}/classifyManage/classifyList';//刷新当前页
+                      });
+                  }else{
+                      layer.msg('更新分类失败',{
+                          offset : '165px',
+                          icon : 1,
+                          time : 1200
+                      });
+                  }
+              },
+              error : function (error) {
+                  console.log(error);
+                  layer.msg('服务器繁忙，请稍后再试',{
+                      offset : '15px',
+                      icon : 9,
+                      time : 2000
+                  });
+              }
+          })
+      });
+
+      //添加商品页面提交信息
+        $("#addSubmit").click(function () {
+            var typeName = $("#addTypeName").val();
+            $.ajax({
+                url:'${ctx}/classifyManage/addType',
+                type:'post',
+                dataType:'json',
+                data: {
+                    typeName : typeName
+                },
+                success:function (resp) {
+                    console.log(resp);
+                    if (resp.code == 0) {
+                        layer.msg('添加分类成功',{
+                            offset : '165px',
+                            icon : 1,
+                            time : 1200
+                        },function () {
+                            location.href='${ctx}/classifyManage/classifyList';//刷新当前页
+                        });
+                    }else{
+                        layer.msg('添加分类失败',{
+                            offset : '165px',
+                            icon : 1,
+                            time : 1200
+                        });
+                    }
+                },
+                error : function (error) {
+                    console.log(error);
+                    layer.msg('服务器繁忙，请稍后再试',{
+                        offset : '15px',
+                        icon : 9,
+                        time : 2000
+                    });
+                }
+            });
+        })
+
+
+    });
+
+    //编辑分类
+    function editType(id, typeName) {
+      console.log(id+">>>>>"+typeName);
+      layui.use([],function () {
+          var $ = layui.jquery;
+          $("#typeId").val(id);
+          $("#typeName").val(typeName);
+
+          $("#dataTable").addClass('layui-hide');
+          $("#dataTable2").removeClass('layui-hide');
+      })
+
+    }
+
+    //添加分类
+    function addType() {
+        layui.use([],function () {
+            var $ = layui.jquery;
+            $("#dataTable").addClass('layui-hide');
+            $("#dataTable3").removeClass('layui-hide');
+        });
+    }
+
+    //删除分类
+    function delNovelType(id) {
+      console.log(id);
+      layui.use(['table','layer'],function () {
+          var $= layui.jquery,
+              layer = layui.layer,
+              table = layui.table;
+          layer.confirm("确定要删除这个分类？",{
+              btn : ['确定','取消'] , btn1 :function () {
+                  $.ajax({
+                      url : '${ctx}/classifyManage/delType',
+                      type :'post',
+                      dataType: 'json',
+                      data : {
+                          typeId : id
+                      },
+                      success :function (resp) {
+                          console.log(resp);
+                          if (resp.code == 0) {
+                              layer.msg('删除分类成功',{
+                                  offset : '165px',
+                                  icon : 1,
+                                  time : 1200
+                              },function () {
+                                  location.href='${ctx}/classifyManage/classifyList';//刷新当前页
+                              });
+                          }else{
+                              layer.msg('删除分类失败',{
+                                  offset : '165px',
+                                  icon : 1,
+                                  time : 1200
+                              });
+                          }
+                      },
+                      error : function (error) {
+                          layer.msg('服务器繁忙，请稍后再试',{
+                              offset : '15px',
+                              icon : 9,
+                              time : 2000
+                          });
+                      }
+                  })
+              },btn2 : function () {
+
+              }
+          })
+
+      })
+
+    }
+
+  </script>
+</body>
+</html>
+

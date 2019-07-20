@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+
+<!--小说列表页开始-->
+<div class="layui-fluid" id="table1">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">评论管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style"
+                                       style="font-size: 18px;width: 100px">筛选</label>
+                            </div>
+                            <!--作者或书名-->
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" style="width: 230px" id="novelInfo" placeholder="请输入书名、作者">
+                            </div>
+
+                            <!--小说类型-->
+                            <div class="layui-inline">
+                                <select id="novelType" lay-filter="status_f">
+                                </select>
+                            </div>
+
+
+                            <div class="layui-inline">
+                                <button class="layui-btn " onclick="return false;" data-type="reload"
+                                        id="selectNovel">查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8" style="width: 100%">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">小说列表</div>
+                    <div class="layui-card-body">
+                        <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                            <div class="layui-tab-content">
+                                <table class="layui-hide" id="table_data" lay-filter="table_data"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--小说列表页结束-->
+
+<!--小说章节列表和全部留言页开始-->
+<div class="layui-fluid layui-hide" id="table2">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">评论管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style"
+                                       style="font-size: 18px;width: 100px">筛选</label>
+                            </div>
+
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" id="startDate" placeholder="yyyy-MM-dd">
+                            </div>
+
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" id="endDate" placeholder="yyyy-MM-dd">
+                            </div>
+
+                            <!--评论内容-->
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" style="width: 230px" id="commentInfo" placeholder="请输入评论内容">
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn " onclick="return false;" data-type="reload"
+                                        id="selected">查询
+                                </button>
+
+                                <button class="layui-btn layui-btn-primary" onclick="return false;" data-type="reload"
+                                        id="backNovelList">返回列表
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8" style="width: 100%">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header" id="novelName">评论列表</div>
+                    <div class="layui-card-body">
+                        <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                            <div class="layui-tab-content">
+                                <table class="layui-hide" id="table_data2" lay-filter="table_data"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--结束-->
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    layui.use(['table','layer'], function() {
+        var $ = layui.jquery,
+            table = layui.table,
+            layer = layui.layer,
+            form  = layui.form;
+        form.render();
+
+        //获取分类下拉选框数据
+        $(function () {
+            $.ajax({
+                url : '${ctx}/novelManage/selectData',
+                type : 'get',
+                dataType : 'json',
+                success : function (resp) {
+                    $("#novelType").empty();
+                    if (resp.code == 0){
+                        var typeArray = resp.data;
+                        console.log(typeArray);
+                        var optionHtml = "";
+                        $("#novelType").prepend("<option value=\"\" selected>请选择分类</option>");
+                        for (var i=0;i<typeArray.length;i++){
+                            optionHtml += "<option value=\""+typeArray[i]+"\">"+typeArray[i]+"</option>";
+                        }
+                        $("#novelType").append(optionHtml);
+                        form.render('select');
+                    } else{
+                        layer.msg('获取下拉选框数据异常！！！');
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        });
+
+
+        //获取小说列表
+        var novelType = $("#novelType").val();
+        var novelInfo = $("#novelInfo").val();
+        table.render({
+            elem: '#table_data'
+            , url: '${ctx}/commentManage/novelList'
+            , cols: [[
+                {field: 'novelId',title:'id',hide:true},
+                {field: 'p', align: 'center', title: '序号', type: 'numbers',unresize: true},//type 为 numbers及开启自动序号 与前面的 field无关
+                {field: 'novelName', align: 'center', title: '书名',width:200,unresize: true},
+                {field: 'novelTypeStr', align: 'center', title: '分类',width:150,unresize: true},
+                {field: 'novelAuthor', align: 'center', title: '作者',width:200,unresize: true},
+                {field: 'novelInfo', align: 'center', title: '简介',width:400,unresize: true},
+                {field: 'lastChapter', align: 'center', title: '最新章节',width:250,unresize: true},
+                {field: 'lastChapterUpdate', align: 'center', title: '更新时间',width:200,unresize: true},
+                {field: 'options', align: 'center', title: '操作',toolbar:'#btn_check_row',width:160,unresize: true}
+            ]]
+            , page: true //是否显示分页
+            , limits: [10, 20, 50, 100]
+            , limit: 10 //每页默认显示的数量
+            , id: "tableReload"
+            , where: {novelType: novelType,novelInfo: novelInfo}
+            , text: {
+                none: '暂无相关数据'
+            }
+        });
+
+        //点击了查询按钮
+        $("#selectNovel").on('click',function () {
+            var novelType = $("#novelType").val();
+            var novelInfo = $("#novelInfo").val();
+            table.reload('tableReload',{
+                page: {curr: 1}
+                , where: {novelType: novelType,novelInfo: novelInfo}
+            })
+        });
+
+        //行工具栏事件
+        table.on('tool(table_data)', function(obj){
+            console.log(obj.data);
+            var novelId = obj.data.novelId;
+            var novelName = obj.data.novelName;
+            console.log(novelId);
+            if (obj.event === 'lookChapter'){
+                $("#table1").addClass("layui-hide");
+                $("#table2").removeClass("layui-hide");
+                $("#novelName").text(novelName+" 评论列表");
+                showComment(novelId);
+            }
+        });
+
+    });
+
+    //跳转到小说评论页面
+    function showComment(novelId) {
+        layui.use(['table','layer','laydate'], function() {
+            var $ = layui.jquery,
+                table = layui.table,
+                layer = layui.layer,
+                date = layui.laydate;
+
+            //时间选择
+            date.render({
+                elem : '#startDate'
+            });
+            date.render({
+                elem : '#endDate'
+            });
+
+            //通过novelId获取小说评论信息
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var commentInfo = $("#commentInfo").val();
+            table.render({
+                elem: '#table_data2'
+                , url: '${ctx}/commentManage/commentList'
+                , cols: [[
+                    {field: 'commentId',title:'commentId',hide:true},
+                    {field: 'novelId',title:'novelId',hide:true},
+                    {field: 'p', align: 'center', title: '序号', type: 'numbers',unresize: true},//type 为 numbers及开启自动序号 与前面的 field无关
+                    {field: 'nickname', align: 'center', title: '昵称',width:100,unresize: true},
+                    {field: 'phoneNumber', align: 'center', title: '用户手机',width:150,unresize: true},
+                    {field: 'userCommentInfo', align: 'center', title: '评论',width:300,unresize: true},
+                    {field: 'userCommentTime', align: 'center', title: '评论时间',width:200,unresize: true},
+                    {field: 'authorReply', align: 'center', title: '作者回复',width:400,unresize: true},
+                    {field: 'authorReplyTime', align: 'center', title: '回复时间',width:200,unresize: true},
+                    {field: 'checkStatus', align: 'center', title: '审核状态',templet:'#check_status',width:100,unresize: true},
+                    {field: 'checkInfo', align: 'center', title: '审核理由',width:200,unresize: true},
+                    {field: 'checkTime', align: 'center', title: '审核时间',width:200,unresize: true},
+                    {field: 'options', align: 'center', title: '操作',toolbar:'#btn_option_row',width:160,unresize: true}
+                ]]
+                , page: true //是否显示分页
+                , limits: [10, 20, 50, 100]
+                , limit: 10 //每页默认显示的数量
+                , id: "tableReload2"
+                , where: {startDate: startDate,endDate: endDate,commentInfo:commentInfo,novelId:novelId}
+                , text: {
+                    none: '暂无相关数据'
+                }
+            });
+
+            //点击了查询按钮
+            $("#selected").on('click',function () {
+                var startDate = $("#startDate").val();
+                var endDate = $("#endDate").val();
+                var commentInfo = $("#commentInfo").val();
+                table.reload('tableReload2',{
+                    page: {curr: 1}
+                    ,  where: {startDate: startDate,endDate: endDate,commentInfo:commentInfo,novelId:novelId}
+                })
+            });
+
+            //行工具栏事件
+            table.on('tool(table_data)', function(obj){
+                console.log(obj.data);
+                var commentId = obj.data.commentId;
+                var novelId = obj.data.novelId;
+                if (obj.event === 'accord'){
+                    var startDate = $("#startDate").val();
+                    var endDate = $("#endDate").val();
+                    var commentInfo = $("#commentInfo").val();
+                    layer.prompt({
+                        formType: 2,
+                        value: '',
+                        title: '请输入和谐理由',
+                        area: ['300px', '200px'] //自定义文本域宽高
+                    }, function(value, index, elem) {
+                        $.ajax({
+                            url: '${ctx}/commentManage/accordNovel',
+                            type: 'post',
+                            data: {
+                                'commentId': commentId,
+                                'novelId': novelId,
+                                'accordReason':value
+                            },
+                            dataType: 'json',
+                            success: function (resp) {
+                                if (resp.code === 0) {
+                                    layer.msg("和谐小说成功！！！");
+                                    table.reload('tableReload2', {
+                                        page: {curr: 1}
+                                        ,
+                                        where: {
+                                            startDate: startDate,
+                                            endDate: endDate,
+                                            commentInfo: commentInfo,
+                                            novelId: novelId
+                                        }
+                                    })
+                                } else {
+                                    layer.msg("和谐小说失败！！！")
+                                }
+                            },
+                            error: function (error) {
+                                layer.msg('服务器繁忙，请稍后再试', {
+                                    offset: '15px'
+                                    , icon: 9
+                                    , time: 2000
+                                });
+                            }
+                        });
+                        layer.close(index);
+                    });
+                }
+            });
+
+            //点击了返回按钮
+            $("#backNovelList").click(function () {
+                $("#table1").removeClass("layui-hide");
+                $("#table2").addClass("layui-hide");
+                var novelType = $("#novelType").val();
+                var novelInfo = $("#novelInfo").val();
+                table.reload('tableReload',{
+                    page: {curr: 1}
+                    , where: {novelType: novelType,novelInfo: novelInfo}
+                })
+            })
+
+        });
+    }
+
+
+  </script>
+<script type="text/html" id="btn_check_row">
+    <a class="layui-btn layui-btn-xs" lay-event="lookChapter">查看评论</a>
+</script>
+
+<script type="text/html" id="check_status">
+    {{#  if(d.checkStatus == 1){ }}
+    显示
+    {{# } if(d.checkStatus == -1){ }}
+    和谐
+    {{# } }}
+</script>
+
+<script type="text/html" id="btn_option_row">
+    {{#  if(d.checkStatus == 1){ }}
+        <a class="layui-btn layui-btn-xs" lay-event="accord">和谐</a>
+    {{# } }}
+</script>
+
+</body>
+</html>
+

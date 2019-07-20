@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<#include "/common/common.html">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>忘记密码 - 羲阳阅读网</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/style/admin.css" media="all">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/style/login.css" media="all">
+</head>
+
+  <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+    <div class="layadmin-user-login-main">
+      <div class="layadmin-user-login-box layadmin-user-login-header">
+        <h2>找回密码</h2>
+        <p>羲阳阅读网</p>
+      </div>
+      <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+      
+        <script type="text/html" template>
+          {{# if(layui.router().search.type === 'resetpass'){ }}
+            <div class="layui-form-item">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="password"></label>
+              <input type="password" name="password" id="password" lay-verify="pass" placeholder="新密码" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="repass"></label>
+              <input type="password" name="repass" id="repass" lay-verify="required" placeholder="确认密码" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+              <button class="layui-btn layui-btn-fluid" id="resetPass" lay-submit lay-filter="LAY-user-forget-resetpass">重置新密码</button>
+            </div>
+          {{# } else { }}
+            <div class="layui-form-item">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="phone"></label>
+              <input type="text" name="cellphone" id="phone" lay-verify="phone" placeholder="请输入注册时的手机号" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+              <div class="layui-row">
+                <div class="layui-col-xs7">
+                  <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="verifyCode"></label>
+                  <input type="text" name="verifyCode" id="verifyCode" lay-verify="required" placeholder="图形验证码" class="layui-input">
+                </div>
+                <div class="layui-col-xs5">
+                  <div style="margin-left: 10px;">
+                    <img src="${ctx}/user/verifyCode" class="layadmin-user-login-codeimg" id="code">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <div class="layui-row">
+                <div class="layui-col-xs7">
+                  <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="smsCode"></label>
+                  <input type="text" name="smsCode" id="smsCode" lay-verify="required" placeholder="短信验证码" class="layui-input">
+                </div>
+                <div class="layui-col-xs5">
+                  <div style="margin-left: 10px;">
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-fluid" id="getSmsCode">获取验证码</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <button class="layui-btn layui-btn-fluid" id="submit" lay-submit lay-filter="LAY-user-forget-submit">找回密码</button>
+            </div>
+          {{# } }}
+        </script>
+   
+      </div>
+    </div>
+    
+    <div class="layui-trans layadmin-user-login-footer">
+      
+      <p>© 2019 <a href="http://www.layui.com/" target="_blank">cmyang.cn</a></p>
+      <p>
+        <span><a href="http://www.layui.com/admin/#get" target="_blank">获取授权</a></span>
+        <span><a href="http://www.layui.com/admin/pro/" target="_blank">在线演示</a></span>
+        <span><a href="http://www.layui.com/admin/" target="_blank">前往官网</a></span>
+      </p>
+    </div>
+
+  </div>
+
+  <script src="${ctx}/layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '${ctx}/layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'user'], function(){
+    var $ = layui.jquery,
+        layer = layui.layer;
+
+
+    //刷新图形验证码
+    $("#code").on('click',function () {
+        $("#code").attr("src","${ctx}/user/verifyCode?random="+Math.random());
+    });
+
+    //点击了获取验证码
+    $("#getSmsCode").on('click',function () {
+        var verifyCode = $.trim($("#verifyCode").val());
+        var phone = $.trim($("#phone").val());
+        if ($("#getSmsCode").is(".layui-btn-disabled")) {
+            return;
+        }
+
+        if (checkIsNull(verifyCode)) {
+            layer.msg("请先填写图形验证码!",{icon:0,time:1200});
+            return;
+        }
+        if (checkPhone(phone)) {
+            $("#getSmsCode").addClass("layui-btn-disabled");
+            countDown();
+            $.ajax({
+                url: '${ctx}/user/forgetCode',
+                type: 'POST',
+                data: {
+                    'phone': phone
+                },
+                dataType: 'json',
+                success: function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg("验证码发送成功，请注意查收！", {icon: 6, time: 1200});
+                    } else {
+                        layer.msg("发送失败，请稍后再试！", {icon: 2, time: 1200});
+                    }
+                },
+                error: function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px',
+                        icon: 9,
+                        time: 2000
+                    });
+                }
+            })
+        }
+    });
+
+    //点击了找回密码按钮
+    $("#submit").on('click',function () {
+        var phone = $.trim($("#phone").val());
+        var verifyCode = $.trim($("#verifyCode").val());
+        var phoneCode = $.trim($("#smsCode").val());
+
+        if (checkIsNull(phone) || !(phone.length === 11)) {
+            layer.msg("请输入正确格式的手机号",{icon:5,time:1200});
+            return;
+        }
+        if (checkIsNull(verifyCode)) {
+            layer.msg("请输入图形验证码！",{icon:5,time:1200});
+            return;
+        }
+        if (checkIsNull(phoneCode)){
+            layer.msg("请输入手机验证码！",{icon:5,time:1200});
+            return;
+        }
+
+        $.ajax({
+            url : '${ctx}/user/forget',
+            type : 'POST',
+            data : {
+                'phone' : phone,
+                'verifyCode' : verifyCode,
+                'phoneCode' : phoneCode
+            },
+            dataType : 'json',
+            success : function (resp) {
+                if (resp.code === 0) {
+                    layer.msg("密码重置成功，请输入新密码！",{icon:1,time:1000},function () {
+                        location.hash = '/type=resetpass';
+                        location.reload();
+                    })
+                }else if (resp.code === -1) {
+                    layer.msg(resp.msg,{icon:5,time:1000},function () {
+                        window.location.href="${ctx}/user/loginReg";
+                    });
+                }else {
+                    layer.msg(resp.msg,{icon:2,time:1200})
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px',
+                    icon: 9,
+                    time: 2000
+                });
+            }
+        });
+    });
+
+
+    //点击了重置密码
+    $("#resetPass").on('click',function () {
+        var password = $.trim($("#password").val());
+        var rePass = $.trim($("#repass").val());
+
+        if (checkIsNull(password)) {
+            layer.msg("密码不能为空！",{icon:5,time:1000});
+            return;
+        }
+
+        if (checkIsNull(rePass)) {
+            layer.msg("请再次输入密码！",{icon:5,time:1000});
+            return;
+        }
+
+        if (password != rePass) {
+            layer.msg("两次输入的密码不同！",{icon:5,time:1200});
+            return;
+        }
+
+        $.ajax({
+            url : '${ctx}/user/resetPassword',
+            type: 'POST',
+            data: {
+                'password' : password
+            },
+            dataType : 'json',
+            success : function (resp) {
+                if (resp.code === 0) {
+                    layer.msg("密码重置成功！",{icon:1,time:1200},function () {
+                      window.location.href='${ctx}/user/login';
+                    })
+                }else {
+                    layer.msg(resp.msg,{icon:2,time:1200});
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px',
+                    icon: 9,
+                    time: 2000
+                });
+            }
+        })
+    })
+
+
+    
+  });
+
+  //倒计时
+  var flag = 1;
+  var i = 60;
+  function countDown() {
+      var $ = layui.jquery;
+      i = i - 1;
+      $("#getSmsCode").html(i+"秒后重新获取");
+      if (i === 0) {
+          $("#getSmsCode").html("重新获取");
+          flag = 1;
+          i = 60;
+          $("#getSmsCode").removeClass("layui-btn-disabled");
+          return;
+      }
+      setTimeout('countDown()',1000);
+  }
+
+  //校验手机号码是否合格
+  function checkPhone(phone){
+      var $ = layui.jquery,
+          layer = layui.layer;
+      var status = true;
+      if (checkIsNull(phone)) {
+          $("#phone").addClass('layui-form-danger');
+          layer.msg("请输入手机号",{icon:5,time:1000});
+          return false;
+      }
+      var param = /^1[345789]\d{9}$/;
+      if (!param.test(phone)) {
+          layer.msg("手机号码格式不正确！",{icon:5,time:1000});
+          return false;
+      }
+      return status;
+  }
+
+
+  function checkIsNull(val) {
+      return val === "" || val === undefined || val === null;
+  }
+  </script>
+
+</body>
+</html>

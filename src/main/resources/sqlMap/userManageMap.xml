@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.systemSetting.UserManageMapper">
+
+    <!--获取所有的用户信息-->
+    <select id="getUserList" resultType="com.sinocontact.app.entity.User">
+        SELECT * FROM prs_user WHERE status=0
+        <choose>
+            <when test="startDate != ''">
+                 AND <![CDATA[ update_time >= #{startDate} ]]>
+            </when>
+            <when test="endDate != ''">
+                 AND <![CDATA[ update_time <= #{endDate} ]]>
+            </when>
+            <when test="userInfo != ''">
+                 AND account LIKE "%"#{userInfo}"%" OR nickname LIKE "%"#{userInfo}"%" OR phone_number LIKE "%"#{userInfo}"%"
+            </when>
+            <when test="role != 0">
+                 AND role = #{role}
+            </when>
+        </choose>
+          LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--获取用户总条数-->
+    <select id="getUserCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM prs_user WHERE status=0
+        <choose>
+            <when test="startDate != ''">
+                AND <![CDATA[ update_time >= #{startDate} ]]>
+            </when>
+            <when test="endDate != ''">
+                AND <![CDATA[ update_time <= #{endDate} ]]>
+            </when>
+            <when test="userInfo != ''">
+                AND account LIKE "%"#{userInfo}"%" OR nickname LIKE "%"#{userInfo}"%" OR phone_number LIKE "%"#{userInfo}"%"
+            </when>
+            <when test="role != 0">
+                AND role = #{role}
+            </when>
+        </choose>
+    </select>
+
+    <!--审核用户通过-->
+    <update id="checkUserPass" parameterType="java.util.List">
+        UPDATE prs_check_user SET check_status=1,check_time=now() WHERE check_id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--更新用户权限-->
+    <update id="updateUserRole" parameterType="java.util.List">
+        UPDATE prs_user SET role=10,update_time=now() WHERE user_id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--审核用户不通过-->
+    <update id="checkUserNoPass" parameterType="java.util.List">
+        UPDATE prs_check_user SET check_status=-1,check_time=now() WHERE check_id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--获取所有审核用户信息-->
+    <select id="getCheckUserList" resultType="com.sinocontact.app.entity.CheckUser">
+        SELECT pcu.*,pu.nickname,pu.phone_number,pu.role FROM prs_check_user AS pcu LEFT JOIN prs_user AS pu ON pcu.user_id=pu.user_id WHERE pcu.check_status=#{checkStatus} AND pu.status=0 LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--获取所有审核用户条数-->
+    <select id="getCheckUserCount" resultType="java.lang.Integer">
+        SELECT COUNT(pcu.check_id) FROM prs_check_user AS pcu LEFT JOIN prs_user AS pu ON pcu.user_id=pu.user_id WHERE pcu.check_status=#{checkStatus} AND pu.status=0
+    </select>
+
+    <!--获取所有的用户-->
+    <select id="getUserNum" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM prs_user WHERE status=0
+    </select>
+
+    <!--获取近一个月登录的用户-->
+    <select id="getUserLoginNum" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM prs_user WHERE status=0 AND update_time BETWEEN #{startDate} and #{endDate}
+    </select>
+
+</mapper>

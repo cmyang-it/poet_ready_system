@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.systemSetting.CommentManageMapper">
+
+
+    <!--获取所有的小说信息-->
+    <select id="getNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.novel_id,pn.novel_name,pn.novel_author,pn.novel_info,pn.last_chapter,pn.last_chapter_update,pnt.type_name AS novelTypeStr FROM prs_novel AS pn  LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id WHERE 1=1
+        <choose>
+            <when test="novelType != ''">
+                AND pnt.type_name = #{novelType}
+            </when>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--获取小说总条数-->
+    <select id="getNovelCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pne ON pn.novel_id=pne.novel_id LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id WHERE 1=1
+        <choose>
+            <when test="novelType != ''">
+                AND pnt.type_name = #{novelType}
+            </when>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+        </choose>
+    </select>
+
+    <!--通过小说id获取小说评论列表-->
+    <select id="getCommentList" resultType="com.sinocontact.app.entity.Comment">
+        SELECT pci.*,pu.nickname,pu.phone_number FROM prs_comment_info AS pci LEFT JOIN prs_user AS pu ON pci.user_id=pu.user_id WHERE 1=1
+        <choose>
+            <when test="startDate != ''">
+                AND <![CDATA[ pci.update_time >= #{startDate} ]]>
+            </when>
+            <when test="endDate != ''">
+                AND <![CDATA[ pci.update_time <= #{endDate} ]]>
+            </when>
+            <when test="commentInfo != ''">
+                AND pci.user_comment_info LIKE "%"#{commentInfo}"%" OR pu.nickname LIKE "%"#{commentInfo}"%"
+            </when>
+            <when test="novelId != 0">
+                AND pci.novel_id=#{novelId}
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--通过小说id获取小说评论条数-->
+    <select id="getCommentCount" resultType="com.sinocontact.app.entity.Comment">
+        SELECT COUNT(pci.user_id) FROM prs_comment_info AS pci LEFT JOIN prs_user AS pu ON pci.user_id=pu.user_id WHERE 1=1
+        <choose>
+            <when test="startDate != ''">
+                AND <![CDATA[ pci.update_time >= #{startDate} ]]>
+            </when>
+            <when test="endDate != ''">
+                AND <![CDATA[ pci.update_time <= #{endDate} ]]>
+            </when>
+            <when test="commentInfo != ''">
+                AND pci.user_comment_info LIKE "%"#{commentInfo}"%" OR pu.nickname LIKE "%"#{commentInfo}"%"
+            </when>
+            <when test="novelId != 0">
+                AND pci.novel_id=#{novelId}
+            </when>
+        </choose>
+    </select>
+
+    <!--和谐小说评论-->
+    <update id="accordNovel">
+        UPDATE prs_comment_info SET check_status=-1,check_info=#{accordReason},check_time=now() WHERE novel_id=#{novelId} AND comment_id=#{commentId}
+    </update>
+
+</mapper>

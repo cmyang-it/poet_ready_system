@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">书架列表</div>
+                <div class="layui-card-body">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th width="25%" style="text-align: center">书名</th>
+                            <th width="25%" style="text-align: center">最新章节</th>
+                            <th width="25%" style="text-align: center">书签</th>
+                            <th width="15%" style="text-align: center">添加时间</th>
+                            <th width="10%" style="text-align: center">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <#list data as item>
+                            <tr>
+                                <td style="text-align: center"><a href="javascript:void(0);" style="color: #1E9FFF" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')">${item.novelName!}</a></td>
+                                <td style="text-align: center">${item.lastChapter!}</td>
+                                <td style="text-align: center">${item.chapterName!}</td>
+                                <td style="text-align: center">${item.updateTime!item.createTime} </td>
+                                <td style="text-align: center">
+                                    <button class="layui-btn layui-btn-danger" onclick="deleteNovel('${item.novelId}')">删除</button>
+                                </td>
+                            </tr>
+                        </#list>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+
+<script type="text/javascript">
+
+    layui.use(['layer'],function () {
+        var $ = layui.jquery,
+            layer = layui.layer;
+
+
+        $(function () {
+            refresh();
+
+        });
+
+    });
+
+    function refresh() {
+        setTimeout(function () {
+            location.reload();
+        },5000);
+    }
+
+    //删除书架小说信息
+    function deleteNovel(novelId) {
+        layui.use(['layer'],function () {
+            var $ = layui.jquery,
+                layer = layui.layer;
+            layer.confirm("确定要将这本书移除书架么？", {
+                btn: ['确定', '取消'], btn1: function () {
+                    if (checkIsNull(novelId)) {
+                        layer.msg("移除小说失败，请稍后再试！", {icon: 5, time: 1000});
+                        return;
+                    }
+                    $.ajax({
+                        url: '${ctx}/bookCase/deleteNovel',
+                        type: 'post',
+                        data: {
+                            'novelId': novelId
+                        },
+                        dataType: 'json',
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                layer.msg("移除成功！", {icon: 1, time: 1000}, function () {
+                                    window.location.href = "${ctx}/bookCase/index";
+                                })
+                            } else {
+                                layer.msg("移除失败，请稍后再试！", {icon: 5, time: 1000});
+                            }
+                        },
+                        error: function () {
+                            layer.msg('服务器繁忙，请稍后再试', {
+                                offset: '15px'
+                                , icon: 9
+                                , time: 2000
+                            });
+                        }
+                    })
+                },
+                btn2: function () {
+                }
+            });
+        });
+    }
+
+
+    //=================================COMMON====================================
+
+
+    function checkIsNull(val) {
+        return val === "" || val === undefined || val === null;
+    }
+
+
+
+  </script>
+</body>
+</html>
+

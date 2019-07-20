@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  
+  <#include "/common/head.html" >
+    <style>
+      .layui-table td, .layui-table th {
+        position: relative;
+        padding: 10px 14px;
+        min-height: 20px;
+        line-height: 25px;
+        font-size: 14px;
+      }
+
+      .click-color{
+        color: #2f468f;
+      }
+
+      .table-align{
+        text-align: center;
+      }
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-md8" style="width: 80%">
+      <!--热门小说-->
+      <div class="layui-card">
+        <div class="layui-card-header">
+          热门小说
+          <a lay-href="${ctx}/ranking/totalNumber" class="layui-a-tips">查看更多</a>
+        </div>
+        <div class="layui-card-body">
+          <div class="layui-row layui-col-space10">
+              <#list  hotNovelList as item>
+              <div class="layui-col-xs12 layui-col-sm4" style="width: 175px;margin-left: 40px;">
+                <div class="layuiadmin-card-text" style="height: 160px;width: 110px">
+                    <img src="${item.novelImg!}" alt="小说封面" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')" style="height: 160px;width: 110px"/>
+                </div>
+                  <div style="width: 150px;text-align: center"><a href="javascript:void(0);" class="click-color" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')">${item.novelName!}</a></div>
+              </div>
+              </#list>
+          </div>
+        </div>
+      </div>
+      <!--最近更新-->
+      <div class="layui-card">
+        <div class="layui-card-header">最近更新</div>
+        <div class="layui-card-body">
+          <table class="layui-table" lay-skin="line">
+            <colgroup>
+              <col width="10%">
+              <col width="20%">
+              <col width="40%">
+              <col width="20%">
+              <col width="10%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th style="text-align: center">类型</th>
+              <th style="text-align: center">书名</th>
+              <th style="text-align: center">最新章节</th>
+              <th style="text-align: center">作者</th>
+              <th style="text-align: center">更新时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#list nowUpdateList as item>
+            <tr>
+              <td class="table-align"><a href="javascript:void(0);" onclick="jumpNovelType('${item.novelType!}')" class="click-color">${item.novelTypeStr!}</a></td>
+              <td class="table-align"><a href="javascript:void(0);" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')" class="click-color">${item.novelName!}</a></td>
+              <td class="table-align"><a href="javascript:void(0);" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')" class="click-color">${item.lastChapter!}</a></td>
+              <td class="table-align">${item.novelAuthor!}</td>
+              <td class="table-align">${item.lastChapterUpdate!}</td>
+            </tr>
+            </#list>
+            </tbody>
+          </table>
+          <hr/>
+          <div class="layui-card-header" style="border-bottom:0;line-height: 15px;height: 20px;"><a lay-href="${ctx}/ranking/nowUpdate" class="layui-a-tips">查看更多</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="layui-col-md4" style="width: 20%;">
+      <!--总推荐榜 -->
+      <div class="layui-card">
+        <div class="layui-card-header">
+          总推荐榜
+          <a lay-href="${ctx}/ranking/recommendList" class="layui-a-tips">查看更多</a>
+        </div>
+        <div class="layui-card-body">
+          <table class="layui-table layuiadmin-page-table" lay-skin="line" style="border: 0px;">
+          <#list recommendList as item>
+            <tr>
+              <td>
+                <a href="javascript:void(0);" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')" class="click-color">${item.novelName!}</a>
+              </td>
+              <td>${item.novelRecommend!0}</td>
+            </tr>
+          </#list>
+          </table>
+        </div>
+      </div>
+      <!--总字数榜 -->
+      <div class="layui-card">
+        <div class="layui-card-header">
+          总字数榜
+          <a lay-href="${ctx}/ranking/wordsList" class="layui-a-tips">查看更多</a>
+        </div>
+        <div class="layui-card-body">
+          <table class="layui-table layuiadmin-page-table" lay-skin="line" style="border: 0px;">
+              <#list wordsList as item>
+            <tr>
+              <td>
+                <a href="javascript:void(0);" onclick="jumpNovelInfo('${item.novelId!}','${item.novelName!}')" class="click-color">${item.novelName!}</a>
+              </td>
+              <td>${item.novelWords!0}</td>
+            </tr>
+          </#list>
+          </table>
+
+        </div>
+      </div>
+      <!-- 系统相关 -->
+      <div class="layui-card" style="height: 245px">
+          <div class="layui-card-header">版本信息</div>
+          <div class="layui-card-body" style="padding: 5px 15px">
+            <table class="layui-table">
+              <colgroup>
+                <col width="100">
+                <col>
+              </colgroup>
+              <tbody>
+              <tr>
+                <td>当前版本</td>
+                <td>
+                  Ver 1.0.0
+                </td>
+              </tr>
+              <tr>
+                <td>基于框架</td>
+                <td>
+                    layui-2.4.5
+                </td>
+              </tr>
+              <tr>
+                <td>开发作者</td>
+                <td>CaoMingYang</td>
+              </tr>
+              <tr>
+                <td>技术支持</td>
+                <td style="padding-bottom: 0;">
+                  CaoMingYang
+                </td>
+              </tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+  </div>
+</div>
+</body>
+
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+<script src="${ctx}/js/commonJump.js"></script>
+
+  <script>
+
+      layui.config({
+          base: '${ctx}/layuiadmin/' //静态资源所在路径
+      }).extend({
+          index: 'lib/index' //主入口模块
+      }).use(['index','console'],function(){
+
+      });
+
+  </script>
+</html>
+

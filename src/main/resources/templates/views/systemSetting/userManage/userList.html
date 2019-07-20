@@ -1,0 +1,529 @@
+
+<#include "/common/common.html" >
+<!DOCTYPE html>
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+
+<!--用户列表页开始-->
+<div class="layui-fluid" id="table1">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">用户管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style" style="font-size: 18px;width: 100px">用户管理</label>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn">
+                                    用户信息
+                                </button>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn layui-btn-primary" id="permissions">
+                                    权限审核
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style"
+                                       style="font-size: 18px;width: 100px">筛选</label>
+                            </div>
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" id="startDate" placeholder="yyyy-MM-dd">
+                            </div>
+
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" id="endDate" placeholder="yyyy-MM-dd">
+                            </div>
+
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" style="width: 230px" id="userName" placeholder="请输入昵称、账号、手机号">
+                            </div>
+
+                            <div class="layui-inline">
+                                <select id="userRole" lay-filter="status_f">
+                                    <option value="" selected>请选择用户角色</option>
+                                    <option value="1">读者</option>
+                                    <option value="10">作者</option>
+                                    <option value="100">管理员</option>
+                                </select>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn " onclick="return false;" data-type="reload"
+                                        id="selectTable">查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">用户列表</div>
+                    <div class="layui-card-body">
+                        <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                            <div class="layui-tab-content">
+                                <table class="layui-hide" id="table_data"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">用户统计</div>
+                    <div class="layui-card-body">
+                        <div class="layui-card-header" style="font-size: 18px;text-align: center;">最近一个月登录情况</div>
+                        <div class="layui-carousel layadmin-carousel layadmin-dataview" >
+                            <div id="userECharts" style="width: 517px;height: 332px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--用户列表页结束-->
+
+<!--权限审核页开始-->
+<div class="layui-fluid layui-hide" id="table2">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">用户管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style" style="font-size: 18px;width: 100px">用户管理</label>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layui-btn-primary" id="userInfo">
+                                    用户信息
+                                </button>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn">
+                                    权限审核
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style"
+                                       style="font-size: 18px;width: 100px">筛选</label>
+                            </div>
+
+                            <div class="layui-inline">
+                                <select id="checkStatus" lay-filter="status_f">
+                                    <option value="" selected>请选择状态</option>
+                                    <option value="-1">审核不通过</option>
+                                    <option value="0">待审核</option>
+                                    <option value="1">审核通过</option>
+                                </select>
+                            </div>
+
+                            <div class="layui-inline">
+
+                                <button class="layui-btn " onclick="return false;" data-type="reload"
+                                        id="select">查询
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8" style="width: 100%">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">审核信息</div>
+                    <div class="layui-card-body">
+                        <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                            <div class="layui-tab-content">
+                                <table class="layui-hide" id="table_data2" lay-filter="table_data2"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--权限审核页结束-->
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+<script src="${ctx}/layuiadmin/lib/extend/echarts.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    layui.use(['table','layer','laydate'], function() {
+        var $ = layui.jquery,
+            table = layui.table,
+            layer = layui.layer,
+            layDate = layui.laydate;
+
+        //时间选择
+        layDate.render({
+            elem : '#startDate'
+        });
+        layDate.render({
+            elem : '#endDate'
+        });
+
+
+        //获取用户列表信息
+        var startDate = $("#startDate").val();
+        var endDate = $("#endDate").val();
+        var userInfo = $("#userName").val();
+        var role = $("#userRole").val();
+        table.render({
+            elem: '#table_data'
+            , url: '${ctx}/userManage/userList'
+            , cols: [[
+                {field: 'p', align: 'center', title: '序号', type: 'numbers',unresize: true},//type 为 numbers及开启自动序号 与前面的 field无关
+                {field: 'account', align: 'center', title: '用户名',width:100,unresize: true},
+                {field: 'password', align: 'center', title: '密码',width:100,unresize: true},
+                {field: 'nickname', align: 'center', title: '昵称',width:150,unresize: true},
+                {field: 'phoneNumber', align: 'center', title: '电话号码',width:149,unresize: true},
+                {field: 'role', align: 'center', title: '角色',templet:'#roleName',width:100,unresize: true},
+                {field: 'createTime', align: 'center', title: '注册时间',width:200,unresize: true},
+                {field: 'updateTime', align: 'center', title: '最近登录时间',width:200,unresize: true}
+            ]]
+            , page: true //是否显示分页
+            , limits: [10, 20, 50, 100]
+            , limit: 10 //每页默认显示的数量
+            , id: "tableReload"
+            , where: {startDate: startDate, endDate: endDate, userInfo: userInfo,role:role}
+            , text: {
+                none: '暂无相关数据'
+            }
+        });
+        //点击了查询按钮
+        $("#selectTable").on('click',function () {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var userInfo = $("#userName").val();
+            var role = $("#userRole").val();
+            table.reload('tableReload',{
+                page: {curr: 1}
+                , where: {startDate: startDate, endDate: endDate, userInfo: userInfo,role:role}
+            })
+        });
+
+
+        //最近一个月用户登录情况
+        var legendData = []; //项目
+        var seriesData = []; //数据
+        $(function () {
+            $.ajax({
+                url : '${ctx}/userManage/userLoginInfo',
+                type : 'post',
+                dataType : 'json',
+                success : function (resp) {
+                    console.log(resp);
+                    if (resp.code == 0){
+                        seriesData = JSON.parse(resp.data);
+                        for (var i=0;i<seriesData.length;i++){
+                            legendData.push(seriesData[i].name);
+                        }
+                        //显示图表
+                        showECharts(legendData, seriesData);
+                    }
+                    //获取失败
+                    if (resp.code == -1){
+                        //显示图表
+                        showECharts(legendData, seriesData);
+                        layer.msg('获取近一月登录情况失败，请稍后刷新页面', {
+                            offset: '205px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                },
+                error : function (error) {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        });
+
+        //点击了用户信息按钮
+        $("#userInfo").on('click',function () {
+            $("#table2").addClass('layui-hide');
+            $("#table1").removeClass('layui-hide');
+        });
+
+        //点击了权限审核按钮
+        $("#permissions").on('click',function () {
+            $("#table1").addClass('layui-hide');
+            $("#table2").removeClass('layui-hide');
+        });
+
+
+        //获取用户审核信息列表
+        var checkStatus = $("#checkStatus").val();
+        table.render({
+            elem: '#table_data2'
+            , url: '${ctx}/userManage/userCheckList'
+            , toolbar: '#btn_check'
+            , cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'p', align: 'center', title: '序号', type: 'numbers',unresize: true},//type 为 numbers及开启自动序号 与前面的 field无关
+                {field: 'nickname', align: 'center', title: '昵称',width:150,unresize: true},
+                {field: 'phoneNumber', align: 'center', title: '电话号码',width:150,unresize: true},
+                {field: 'role', align: 'center', title: '当前角色',templet:'#roleName',width:150,unresize: true},
+                {field: 'purpose', align: 'center', title: '申请权限名',templet:'#purpose',width:150,unresize: true},
+                {field: 'checkStatus', align: 'center', title: '审核状态',templet:'#check_status',width:100,unresize: true},
+                {field: 'checkTime', align: 'center', title: '审核时间',width:200,unresize: true},
+                {field: 'createTime', align: 'center', title: '申请时间',width:200,unresize: true},
+                {field: 'options', align: 'center', title: '操作',width:200,toolbar:'#btn_check_row',unresize: true}
+            ]]
+            , page: true //是否显示分页
+            , limits: [10, 20, 50, 100]
+            , limit: 10 //每页默认显示的数量
+            , id: "tableReload1"
+            , where: {checkStatus: checkStatus}
+            , text: {
+                none: '暂无相关数据'
+            }
+        });
+
+        //头工具栏事件
+        table.on('toolbar(table_data2)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            var check_status = $("#checkStatus").val();
+            var idArray = [];   //保存审核id数组
+            var userIds = [];   //保存待审核用户id数组
+            switch(obj.event){
+                case 'checkPass':
+                    var data = checkStatus.data;
+                    checkUserPass(data,idArray,check_status,userIds);
+                    break;
+                case 'checkNoPass':
+                    var data = checkStatus.data;
+                    checkUserNoPass(data,idArray,check_status);
+                    break;
+            }
+        });
+
+        //行工具栏事件
+        table.on('tool(table_data2)', function(obj){
+            var checkStatus = $("#checkStatus").val();
+            var data = "["+JSON.stringify(obj.data)+"]";
+            var idArray = [];
+            var userIdArray = [];
+            if(obj.event === 'pass'){
+                checkUserPass(JSON.parse(data),idArray,checkStatus,userIdArray);
+            } else if(obj.event === 'noPass'){
+                checkUserNoPass(JSON.parse(data),idArray,checkStatus);
+            }
+        });
+
+
+        //点击了查询按钮
+        $("#select").on('click',function () {
+            var checkStatus = $("#checkStatus").val();
+            table.reload('tableReload1',{
+                page: {curr: 1}
+                , where: {checkStatus: checkStatus}
+            })
+        });
+
+    });
+
+    //用户统计页面图表显示
+    function showECharts(legendData,seriesData) {
+        var myChart = echarts.init(document.getElementById('userECharts'));
+        var option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)"
+            },
+            legend: {
+                orient: 'vertical',
+                x: 'left',
+                data: legendData
+            },
+            series: [
+                {
+                    name: '登录统计',
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            show: true,
+                            textStyle: {
+                                fontSize: '30',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    data: seriesData
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+
+    //审核通过
+    function checkUserPass(data, idArray, check_status,userIds) {
+        layui.use(['table','layer'],function(){
+            var $ = layui.jquery,
+                table = layui.table,
+                layer = layui.layer;
+            console.log(data);
+            for(var i=0;i<data.length;i++){
+                console.log(data[i]);
+                if (data[i].checkStatus != 0){
+                    layer.msg('不能重复审核！！！');
+                    return;
+                }
+                idArray.push(data[i].checkId);
+                userIds.push(data[i].userId);
+            }
+            console.log(idArray);
+            $.ajax({
+                url : '${ctx}/userManage/checkUser',
+                type : 'post',
+                dataType : 'json',
+                data : {
+                    checkIdArray : JSON.stringify(idArray),
+                    userIdArray : JSON.stringify(userIds)
+                },
+                success : function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg('审核成功！！！');
+                        table.reload('tableReload1',{
+                            page: {curr: 1}
+                            , where: {checkStatus: check_status}
+                        });
+                    }else{
+                        layer.msg('审核失败！！！');
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            });
+        })
+    }
+
+    //审核不通过
+    function checkUserNoPass(data,idArray,check_status) {
+        layui.use(['table','layer'],function () {
+            var $ = layui.jquery,
+                table = layui.table,
+                layer = layui.layer;
+
+            for (var i = 0; i < data.length; i++) {
+                console.log(data[i]);
+                if (data[i].checkStatus != 0) {
+                    layer.msg('不能重复审核！！！');
+                    break;
+                }
+                idArray.push(data[i].checkId);
+            }
+            console.log(idArray);
+            $.ajax({
+                url: '${ctx}/userManage/checkUserNoPass',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    checkIdArray: JSON.stringify(idArray),
+                },
+                success: function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg('审核成功！！！');
+                        table.reload('tableReload1', {
+                            page: {curr: 1}
+                            , where: {checkStatus: check_status}
+                        });
+                    } else {
+                        layer.msg('审核失败！！！',{icon:2,time:1200});
+                    }
+                },
+                error: function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            });
+        });
+    }
+
+  </script>
+<script type="text/html" id="btn_check">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="checkPass">审核通过</button>
+        <button class="layui-btn layui-btn-sm" lay-event="checkNoPass">审核不通过</button>
+    </div>
+</script>
+<script type="text/html" id="btn_check_row">
+    <a class="layui-btn layui-btn-xs" lay-event="pass">通过</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="noPass">不通过</a>
+</script>
+<script type="text/html" id="roleName">
+    {{#  if(d.role == 1){ }}
+    读者
+    {{# }if(d.role == 10) { }}
+    作者
+    {{# }if(d.role == 100) { }}
+    管理员
+    {{# } }}
+</script>
+<script type="text/html" id="check_status">
+    {{#  if(d.checkStatus == 0){ }}
+    待审核
+    {{# }if(d.checkStatus == -1) { }}
+    未通过
+    {{# }if(d.checkStatus == 1) { }}
+    通过
+    {{# } }}
+</script>
+<script type="text/html" id="purpose">
+    {{#  if(d.purpose == 0){ }}
+    作者
+    {{# }if(d.purpose == 1) { }}
+    管理员
+    {{# } }}
+</script>
+</body>
+</html>
+

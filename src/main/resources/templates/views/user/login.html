@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<#include "/common/common.html">
+<html>
+<head>
+  <#include "/common/head.html" >
+</head>
+<body>
+
+  <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+
+    <div class="layadmin-user-login-main">
+      <div class="layadmin-user-login-box layadmin-user-login-header">
+        <h2>用户登录</h2>
+        <p>羲阳小说阅读网</p>
+      </div>
+      <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="username"></label>
+          <input type="text" name="username" id="username" lay-verify="required" placeholder="用户名" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="password"></label>
+          <input type="password" name="password" id="password" lay-verify="required" placeholder="密码" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-row">
+            <div class="layui-col-xs7">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="code"></label>
+              <input type="text" name="code" id="code" lay-verify="required" placeholder="图形验证码" class="layui-input">
+            </div>
+            <div class="layui-col-xs5">
+              <div style="margin-left: 10px;">
+                <img src="${ctx}/user/verifyCode" class="layadmin-user-login-codeimg" id="verifyCode">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom: 20px;vertical-align:bottom;">
+          <a href="${ctx}/user/loginReg" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;float: left;" >注册帐号</a>
+          <a href="${ctx}/user/loginGetPassword" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;">忘记密码？</a>
+        </div>
+        <div class="layui-form-item">
+          <button class="layui-btn layui-btn-fluid" id="submit" lay-submit lay-filter="LAY-user-login-submit">登 入</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="layui-trans layadmin-user-login-footer">
+      
+      <p>© 2019 <a href="http://www.layui.com/" target="_blank">cmyang.cn</a></p>
+      <p>
+        <span><a href="http://www.layui.com/admin/#get" target="_blank">获取授权</a></span>
+        <span><a href="http://www.layui.com/admin/pro/" target="_blank">在线演示</a></span>
+        <span><a href="http://www.layui.com/admin/" target="_blank">前往官网</a></span>
+      </p>
+    </div>
+    
+  </div>
+
+  <script src="${ctx}/layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '${ctx}/layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'user'], function(){
+    var $ = layui.jquery,
+        layer = layui.layer;
+
+    //刷新图形验证码
+    $("#verifyCode").on('click',function () {
+        $("#verifyCode").attr("src","${ctx}/user/verifyCode?random="+Math.random())
+    });
+
+    //点击了登录
+    $("#submit").on('click',function () {
+        var username = $("#username").val();
+        var password = $("#password").val();
+        var code = $("#code").val();
+
+        if (checkIsNull($.trim(username))) {
+            showTips("请输入用户名！");
+            return;
+        }
+        if (checkIsNull($.trim(password))) {
+            showTips("请输入密码！");
+            return;
+        }
+        if (checkIsNull($.trim(code))) {
+            showTips("请输入图形验证码！");
+            return;
+        }
+
+        $.ajax({
+            url : '${ctx}/user/loginCheck',
+            type : 'POST',
+            data : {
+                'username' : username,
+                'password' : password,
+                'code' : code
+            },
+            dataType : 'json',
+            success : function (resp) {
+                if (resp.code === 1) {
+                    layer.msg("欢迎登录！",{icon:6,time:1200},function () {
+                        window.location.href="${ctx}/user/index";
+                    });
+                }else{
+                    showErrorTips(resp.msg);
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px'
+                    , icon: 9
+                    , time: 2000
+                });
+            }
+        })
+    })
+
+  });
+
+  //5 红色的瘪嘴脸
+  function showTips(val) {
+      var layer = layui.layer;
+      layer.msg(val,{icon:5,time:1200});
+  }
+
+  //2 错误提示
+  function showErrorTips(val) {
+      var layer = layui.layer;
+      layer.msg(val,{icon:2,time:1000});
+  }
+  </script>
+</body>
+</html>

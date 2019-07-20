@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html">
+    <style>
+        .input-width {
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<!--小说列表页开始-->
+<div class="layui-fluid" id="table1">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">小说管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style" style="font-size: 18px;width: 100px">小说管理</label>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn">
+                                    小说信息
+                                </button>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn layui-btn-primary" id="addNovel">
+                                    添加小说
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style"
+                                       style="font-size: 18px;width: 100px">筛选</label>
+                            </div>
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input" style="width: 230px" id="novelInfo" placeholder="请输入书名、作者">
+                            </div>
+
+                            <div class="layui-inline">
+                                <select id="novelType" lay-filter="status_f">
+                                </select>
+                            </div>
+
+                            <div class="layui-inline">
+                                <select id="novelStatus" lay-filter="status_f">
+                                    <option value="" selected>请选择状态</option>
+                                    <option value="1" >上架中</option>
+                                    <option value="-1" >已和谐</option>
+                                </select>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn " onclick="return false;" data-type="reload"
+                                        id="selectNovel">查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8" style="width: 100%">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">小说列表</div>
+                    <div class="layui-card-body">
+                        <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                            <div class="layui-tab-content">
+                                <table class="layui-hide" id="table_data" lay-filter="table_data"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--用户列表页结束-->
+
+<!--添加小说开始-->
+<div class="layui-fluid layui-hide" id="table2">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">小说管理</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label new-label-style" style="font-size: 18px;width: 100px">小说管理</label>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layui-btn-primary" id="novelInfoPage">
+                                    小说信息
+                                </button>
+                            </div>
+
+                            <div class="layui-inline">
+                                <button class="layui-btn">
+                                    添加小说
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md8">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">基础信息</div>
+                    <div class="layui-card-body" style="margin:20px 0 0 27%;">
+                        <div class="layui-form" action="" >
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">小说名称</label>
+                                <div class="layui-input-block input-width" >
+                                    <input type="text" name="novelName" id="novelName" autocomplete="off" placeholder="请输入小说名称" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">小说作者</label>
+                                <div class="layui-input-block input-width">
+                                    <input type="text" name="novelAuthor" id="novelAuthor"  autocomplete="off" placeholder="请输入小说作者" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">详情地址</label>
+                                <div class="layui-input-block input-width">
+                                    <input type="text" name="ddUrl" id="ddUrl"  autocomplete="off" placeholder="请输入小说详情在顶点网地址" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">目录地址</label>
+                                <div class="layui-input-block input-width">
+                                    <input type="text" name="ddChapterUrl" id="ddChapterUrl"  autocomplete="off" placeholder="请输入小说目录在顶点网地址" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">飞卢网地址</label>
+                                <div class="layui-input-block input-width">
+                                    <input type="text" name="flUrl" id="flUrl"  autocomplete="off" placeholder="请输入小说在飞卢网地址" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-block input-width">
+                                    <button type="submit" class="layui-btn" id="saveNovel">保存</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary" id="reset">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--添加小说结束-->
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    layui.use(['table','layer','form'], function() {
+        var $ = layui.jquery,
+            table = layui.table,
+            layer = layui.layer,
+            form  = layui.form;
+        form.render();
+
+        //获取分类下拉选框数据
+        $(function () {
+            $.ajax({
+                url : '${ctx}/novelManage/selectData',
+                type : 'get',
+                dataType : 'json',
+                success : function (resp) {
+                    $("#novelType").empty();
+                    if (resp.code == 0){
+                        var typeArray = resp.data;
+                        console.log(typeArray);
+                        var optionHtml = "";
+                        $("#novelType").prepend("<option value=\"\" selected>请选择分类</option>");
+                        for (var i=0;i<typeArray.length;i++){
+                            optionHtml += "<option value=\""+typeArray[i]+"\">"+typeArray[i]+"</option>";
+                        }
+                        $("#novelType").append(optionHtml);
+                        form.render('select');
+                    } else{
+                        layer.msg('获取下拉选框数据异常！！！',{icon:5,time:1000});
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        });
+
+
+        //获取小说列表
+        var novelStatus = $("#novelStatus").val();
+        var novelType = $("#novelType").val();
+        var novelInfo = $("#novelInfo").val();
+        table.render({
+            elem: '#table_data'
+            , url: '${ctx}/novelManage/novelList'
+            , toolbar: '#btn_check'
+            , cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'p', align: 'center', title: '序号', type: 'numbers'},//type 为 numbers及开启自动序号 与前面的 field无关
+                {field: 'novelName', align: 'center', title: '书名',width:140},
+                {field: 'novelImage', align: 'center', title: '封面',width:150,templet:'#novelImg'},
+                {field: 'novelTypeStr', align: 'center', title: '分类',width:100},
+                {field: 'novelAuthor', align: 'center', title: '作者',width:100},
+                {field: 'novelInfo', align: 'center', title: '简介',width:150},
+                {field: 'lastChapter', align: 'center', title: '最新章节',width:200},
+                {field: 'lastChapterUpdate', align: 'center', title: '更新时间',width:150},
+                {field: 'status', align: 'center', title: '连载状态',templet:'#status',width:100},
+                {field: 'checkStatus', align: 'center', title: '操作状态',templet:'#check_status',width:100},
+                {field: 'checkInfo', align: 'center', title: '操作理由',width:100},
+                {field: 'checkTime', align: 'center', title: '操作时间',width:150},
+                {field: 'novelWords', align: 'center', title: '字数',width:100},
+                {field: 'novelRecommend', align: 'center', title: '推荐',width:100},
+                {field: 'novelClick', align: 'center', title: '点击',width:100},
+                {field: 'novelCollect', align: 'center', title: '收藏',width:100},
+                {field: 'options', align: 'center', title: '操作',toolbar:'#btn_check_row',width:130}
+            ]]
+            , page: true //是否显示分页
+            , limits: [10, 20, 50, 100]
+            , limit: 10 //每页默认显示的数量
+            , id: "tableReload"
+            , where: {novelStatus: novelStatus,novelType: novelType,novelInfo: novelInfo}
+            , text: {
+                none: '暂无相关数据'
+            }
+        });
+
+        //点击了查询按钮
+        $("#selectNovel").on('click',function () {
+            var novelStatus = $("#novelStatus").val();
+            var novelType = $("#novelType").val();
+            var novelInfo = $("#novelInfo").val();
+            console.log(novelInfo+'  '+novelType+"  "+novelStatus);
+            table.reload('tableReload',{
+                page: {curr: 1}
+                , where: {novelStatus: novelStatus,novelType: novelType,novelInfo: novelInfo}
+            })
+        });
+
+        //头工具栏事件
+        table.on('toolbar(table_data)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            var novelStatus = $("#novelStatus").val();
+            var novelType = $("#novelType").val();
+            var novelInfo = $("#novelInfo").val();
+            var idArray = [];   //保存审核id数组
+            console.log(checkStatus);
+            switch(obj.event){
+                case 'checkPass':
+                    var data = checkStatus.data;
+                    checkNovelPass(data,idArray,novelStatus,novelType,novelInfo);
+                    break;
+                case 'checkNoPass':
+                    var data = checkStatus.data;
+                    checkNovelNoPass(data,idArray,novelStatus,novelType,novelInfo);
+                    break;
+            }
+        });
+
+        //行工具栏事件
+        table.on('tool(table_data)', function(obj){
+            var novelStatus = $("#novelStatus").val();
+            var novelType = $("#novelType").val();
+            var novelInfo = $("#novelInfo").val();
+            var data = "["+JSON.stringify(obj.data)+"]";
+            console.log(data);
+            var idArray = [];
+            if(obj.event === 'pass'){
+                checkNovelPass(data,idArray,novelStatus,novelType,novelInfo);
+            } else if(obj.event === 'noPass'){
+                checkNovelNoPass(data,idArray,novelStatus,novelType,novelInfo);
+            }
+        });
+
+
+        //点击了添加小说按钮
+        $("#addNovel").on('click',function () {
+           $("#table1").addClass("layui-hide");
+           $("#table2").removeClass("layui-hide");
+        });
+
+        //点击了小说列表
+        $("#novelInfoPage").on('click',function () {
+            $("#table2").addClass("layui-hide");
+            $("#table1").removeClass("layui-hide");
+        });
+
+        //点击了保存
+        $("#saveNovel").on('click',function () {
+            var novelName = $("#novelName").val();
+            var novelAuthor = $("#novelAuthor").val();
+            var ddUrl = $("#ddUrl").val();
+            var ddChapterUrl = $("#ddChapterUrl").val();
+            var flUrl = $("#flUrl").val();
+
+            if (checkIsNull(ddUrl)){
+                layer.msg("小说详情地址不能为空！",{icon:5,time:1200});
+                return;
+            }
+
+            if (checkIsNull(ddChapterUrl)) {
+                layer.msg("小说目录地址不能为空！",{icon:5,time:1200});
+                return;
+            }
+
+            $.ajax({
+                url : '${ctx}/jsoup/saveNovelUrl',
+                type : 'POST',
+                data : {
+                    'novelName' : novelName,
+                    'novelAuthor' : novelAuthor,
+                    'ddUrl' : ddUrl,
+                    'ddChapterUrl' : ddChapterUrl,
+                    'flUrl' : flUrl
+                },
+                dataType : 'json',
+                success : function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg("保存成功！",{icon:1,time:1200},function () {
+                            $("#novelName").val("");
+                            $("#novelAuthor").val("");
+                            $("#ddUrl").val("");
+                            $("#flUrl").val("");
+                            $("#ddChapterUrl").val("");
+                        })
+                    }else{
+                        layer.msg("保存失败，请刷新页面！",{icon:2,time:1200});
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        });
+
+        //点击了重置
+        $("#reset").on('click',function () {
+           $("#novelName").val("");
+           $("#novelAuthor").val("");
+           $("#ddUrl").val("");
+           $("#flUrl").val("");
+        });
+
+    });
+
+    function checkIsNull(val) {
+        return val === "" || val === undefined || val === null;
+    }
+
+    //小说上架
+    function checkNovelPass(data, idArray, novelStatus,novelType,novelInfo) {
+        layui.use(['table','layer'],function(){
+            var $ = layui.jquery,
+                table = layui.table,
+                layer = layui.layer;
+            for(var i=0;i<data.length;i++){
+                console.log(data[i]);
+                if (data[i].checkStatus == 1){
+                    layer.msg('勾选中存在已上架小说！！！',{icon:5,time:1000});
+                    return;
+                }
+                idArray.push(data[i].novelId);
+            }
+            console.log(idArray);
+            layer.prompt({
+                formType: 2,
+                value: '',
+                title: '请输入上架理由',
+                area: ['300px', '200px'] //自定义文本域宽高
+            }, function(value, index, elem) {
+                $.ajax({
+                    url: '${ctx}/novelManage/checkNovelPass',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        novelIdArray: JSON.stringify(idArray),
+                        reason :value
+                    },
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg('上架成功！！！',{icon:1,time:1000});
+                            table.reload('tableReload', {
+                                page: {curr: 1}
+                                , where: {novelStatus: novelStatus, novelType: novelType, novelInfo: novelInfo}
+                            });
+                        } else {
+                            layer.msg('上架失败！！！',{icon:5,time:1000});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('服务器繁忙，请稍后再试', {
+                            offset: '15px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                });
+                layer.close(index);
+            });
+        })
+    }
+
+    //和谐
+    function checkNovelNoPass(data, idArray, novelStatus,novelType,novelInfo) {
+        layui.use(['table','layer'],function () {
+            var $ = layui.jquery,
+                table = layui.table,
+                layer = layui.layer;
+
+            for (var i = 0; i < data.length; i++) {
+                console.log(data[i]);
+                if (data[i].checkStatus == -1) {
+                    layer.msg('勾选中存在已和谐小说！！！',{icon:5,time:1000});
+                    return;
+                }
+                idArray.push(data[i].novelId);
+            }
+            layer.prompt({
+                formType: 2,
+                value: '',
+                title: '请输入和谐理由',
+                area: ['300px', '200px'] //自定义文本域宽高
+            }, function(value, index, elem){
+                console.log(value);
+                $.ajax({
+                    url: '${ctx}/novelManage/checkNovelNoPass',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        novelIdArray: JSON.stringify(idArray),
+                        reason : value
+                    },
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg('和谐成功！！！',{icon:1,time:1000});
+                            table.reload('tableReload', {
+                                page: {curr: 1}
+                                , where: {novelStatus: novelStatus,novelType: novelType,novelInfo: novelInfo}
+                            });
+                        } else {
+                            layer.msg('和谐失败！！！');
+                        }
+                    },
+                    error: function () {
+                        layer.msg('服务器繁忙，请稍后再试', {
+                            offset: '15px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                });
+                layer.close(index);
+            });
+        });
+    }
+
+  </script>
+<script type="text/html" id="btn_check">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="checkPass">上架</button>
+        <button class="layui-btn layui-btn-sm" lay-event="checkNoPass">和谐</button>
+    </div>
+</script>
+<script type="text/html" id="btn_check_row">
+    <a class="layui-btn layui-btn-xs" lay-event="pass">上架</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="noPass">和谐</a>
+</script>
+
+<script type="text/html" id="status">
+    {{#  if(d.status == 1){ }}
+    连载中
+    {{# }if(d.status == 2) { }}
+    已完结
+    {{# } }}
+</script>
+
+<script type="text/html" id="novelImg">
+    <img src="{{d.novelImg}}" style="width: 100px;height: 100px" alt="暂无封面" />
+</script>
+
+<script type="text/html" id="check_status">
+    {{#  if(d.checkStatus == 1){ }}
+    上架中
+    {{# }if(d.checkStatus == -1) { }}
+    已和谐
+    {{# } }}
+</script>
+</body>
+</html>
+

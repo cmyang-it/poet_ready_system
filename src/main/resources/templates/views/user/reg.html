@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<#include "/common/common.html">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>注册 - 羲阳阅读网</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/style/admin.css" media="all">
+  <link rel="stylesheet" href="${ctx}/layuiadmin/style/login.css" media="all">
+</head>
+<body>
+
+
+  <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+    <div class="layadmin-user-login-main">
+      <div class="layadmin-user-login-box layadmin-user-login-header">
+        <h2>注册</h2>
+        <p>羲阳阅读网</p>
+      </div>
+      <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="phone"></label>
+          <input type="text" name="cellphone" id="phone" lay-verify="phone"  placeholder="请输入手机" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-row">
+            <div class="layui-col-xs7">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="verifyCode"></label>
+              <input type="text" name="vercode" id="verifyCode" lay-verify="required" placeholder="验证码" class="layui-input">
+            </div>
+            <div class="layui-col-xs5">
+              <div style="margin-left: 10px;">
+                <button type="button" class="layui-btn layui-btn-primary layui-btn-fluid" id="smsCode">获取验证码</button>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div class="layui-form-item">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="username"></label>
+              <input type="text" name="username" id="username" lay-verify="pass" placeholder="请输入用户名" class="layui-input">
+          </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="password"></label>
+          <input type="password" name="password" id="password" lay-verify="pass" placeholder="请输入密码" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="repass"></label>
+          <input type="password" name="repass" id="repass" lay-verify="required" placeholder="再次输入密码" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="nickname"></label>
+          <input type="text" name="nickname" id="nickname" lay-verify="nickname" placeholder="请输入昵称" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <input type="checkbox" name="agreement" value="1" lay-skin="primary" title="同意用户协议" checked>
+          <a href="login.html" class="layadmin-user-jump-change layadmin-link" style="float: right;margin-top: 7px;">用已有帐号登入</a>
+        </div>
+        <div class="layui-form-item">
+          <button class="layui-btn layui-btn-fluid" id="submit" lay-submit lay-filter="LAY-user-reg-submit">注 册</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="layui-trans layadmin-user-login-footer">
+      
+      <p>© 2019 <a href="http://www.layui.com/" target="_blank">cmyang.cn</a></p>
+      <p>
+        <span><a href="http://www.layui.com/admin/#get" target="_blank">获取授权</a></span>
+        <span><a href="http://www.layui.com/admin/pro/" target="_blank">在线演示</a></span>
+        <span><a href="http://www.layui.com/admin/" target="_blank">前往官网</a></span>
+      </p>
+    </div>
+
+  </div>
+
+  <script src="${ctx}/layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '${ctx}/layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'user'], function(){
+    var $ = layui.jquery
+        ,layer = layui.layer
+    ,setter = layui.setter
+    ,admin = layui.admin
+    ,form = layui.form
+    ,router = layui.router();
+
+    //点击了发送验证码
+    $("#smsCode").on('click',function () {
+        if ($("#smsCode").is(".layui-btn-disabled")) {
+            console.log("------------");
+            return;
+        }
+        var phone = $("#phone").val();
+        if (checkPhone($.trim(phone))) {
+            $("#smsCode").addClass("layui-btn-disabled");
+            countDown();
+            $.ajax({
+                url: '${ctx}/user/loginGetCode',
+                type: 'post',
+                data: {
+                    'phone' : phone
+                },
+                async: true,
+                success:function(resp){
+                    if (resp.code == 0) {
+                        layer.msg("验证码发送成功，请注意查收！",{icon:6,time:1000});
+                    } else {
+                        layer.msg("手机验证码发送失败，请稍后再试!",{icon:5,time:1000});
+                    }
+                },
+                error:function(){
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            });
+        }
+    });
+
+
+    //点击了注册按钮
+    $("#submit").on('click',function () {
+        var phone = $.trim($("#phone").val());
+        var verifyCode = $.trim($("#verifyCode").val());
+        var username = $.trim($("#username").val());
+        var password = $.trim($("#password").val());
+        var rePassword = $.trim($("#repass").val());
+        var nickname = $.trim($("#nickname").val());
+        var flag = $("input[type='checkbox']").is(":checked");
+
+        if (checkUsername(username)) {
+            layer.msg("请输入6-12位字母或数字用户名",{icon:5,time:1000});
+            return;
+        }
+
+        if (checkPassword(password)) {
+            layer.msg("请输入6-16位字母或数字密码",{icon:5,time:1000});
+            return;
+        }
+
+        if (password != rePassword) {
+            layer.msg("两次输入的密码不一致！",{icon:5,time:1000});
+            return;
+        }
+
+        if (verifyCode === ''){
+            layer.msg("验证码不能为空",{icon:5,time:1000});
+            return;
+        }
+
+        if (nickname === ''){
+            layer.msg("昵称不能为空",{icon:5,time:1000});
+            return;
+        }
+
+        if (!flag) {
+            layer.msg("请勾选用户协议",{icon:5,time:1000});
+            return;
+        }
+
+        $.ajax({
+            url : '${ctx}/user/saveUser',
+            type : 'POST',
+            data : {
+                'verifyCode' : verifyCode,
+                'username':username,
+                'password':password,
+                'phone' : phone,
+                'nickname' : nickname
+            },
+            dataType : 'json',
+            success : function (resp) {
+                if (resp.code === 0) {
+                    layer.msg("注册成功！",{icon:6,time:1000},function () {
+                        window.location.href = "login.html";
+                    })
+                }else{
+                    layer.msg(resp.msg,{icon:2,time:1200});
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px'
+                    , icon: 9
+                    , time: 2000
+                });
+            }
+        })
+
+    });
+
+
+  });
+
+  //倒计时
+  var flag = 1;
+  var i = 60;
+  function countDown() {
+      var $ = layui.jquery;
+      i = i - 1;
+      $("#smsCode").html(i+"秒后重新获取");
+      if (i === 0) {
+          $("#smsCode").html("重新获取");
+          flag = 1;
+          i = 60;
+          $("#smsCode").removeClass("layui-btn-disabled");
+          return;
+      }
+      setTimeout('countDown()',1000);
+  }
+
+  //校验手机号码是否合格
+  function checkPhone(phone){
+      var $ = layui.jquery,
+          layer = layui.layer;
+      var status = true;
+      if (checkIsNull(phone)) {
+          layer.msg("请输入手机号",{icon:5,time:1000});
+          return false;
+      }
+      var param = /^1[345789]\d{9}$/;
+      if (!param.test(phone)) {
+          layer.msg("手机号码格式不正确！",{icon:5,time:1000});
+          return false;
+      }
+      return status;
+  }
+
+  //校验用户名
+  function checkUsername(username) {
+      var $ = layui.jquery;
+      var uPattern = /^[a-zA-Z0-9]{6,12}$/;
+      if (uPattern.test($.trim(username))) {
+          return false;
+      }
+      return true;
+  }
+
+  //校验用户名是否存在
+  function checkUserName() {
+      var $ = layui.jquery,
+          layer = layui.layer;
+      var username = $.trim($("username").val());
+
+      if (checkIsNull(username)) {
+          return;
+      }
+      $.ajax({
+          url : '${ctx}/user/checkUserName',
+          type:'POST',
+          data:{
+              'username':username
+          },
+          dataType : 'json',
+          success : function (resp) {
+              if (resp.code === 0) {
+
+              }
+          },
+          error : function () {
+              layer.msg('服务器繁忙，请稍后再试', {
+                  offset: '15px'
+                  , icon: 9
+                  , time: 2000
+              });
+          }
+      })
+  }
+
+  function checkIsNull(val) {
+      return val === "" || val === undefined || val === null;
+  }
+
+  //校验密码
+  function checkPassword(password) {
+      var $ = layui.jquery;
+      var uPattern = /^[a-zA-Z0-9]{6,16}$/;
+      if (uPattern.test($.trim(password))) {
+          return false;
+      }
+      return true;
+  }
+  </script>
+</body>
+</html>

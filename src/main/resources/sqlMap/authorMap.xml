@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.authorCenter.AuthorCenterMapper">
+
+    <!--获取作者所有小说-->
+    <select id="queryNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_author_novel AS pan LEFT JOIN prs_novel AS pn ON pn.novel_id=pan.novel_id LEFT JOIN prs_novel_type AS pnt ON pn.novel_type = pnt.type_id WHERE pan.status=0 AND pn.status!=-1 AND pnt.status=0 AND user_id=#{userId} LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--小说总条数-->
+    <select id="queryNovelCount" resultType="java.lang.Integer" >
+        SELECT COUNT(id) FROM prs_author_novel WHERE status=0 AND user_id=#{userId}
+    </select>
+
+    <!--通过id获取小说信息-->
+    <select id="queryNovelInfo" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id WHERE pn.novel_id=#{novelId} AND pn.status != -1 AND pn.check_status=1 AND pnt.status=0
+    </select>
+
+    <!--校验小说名称是否存在-->
+    <select id="checkNovelName" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM prs_novel WHERE check_status=1 AND novel_id!=#{novelId} AND novel_name=#{novelName}
+    </select>
+
+    <!--更新小说信息-->
+    <update id="updateNovel">
+        UPDATE prs_novel SET novel_name=#{novel.novelName},novel_type=#{novel.novelType},novel_img=#{novel.novelImg},novel_info=#{novel.novelInfo},keyword=#{novel.keyword},status=#{novel.status},update_time=now() WHERE novel_id=#{novel.novelId}
+    </update>
+
+    <!--保存小说信息-->
+    <insert id="saveNovel" useGeneratedKeys="true" keyProperty="novelId" parameterType="com.sinocontact.app.entity.Novel">
+        INSERT INTO prs_novel(novel_img,novel_name,novel_author,novel_info,novel_type,keyword,novel_words,status,create_time) VALUES
+        (#{novelImg},#{novelName},#{novelAuthor},#{novelInfo},#{novelType},#{keyword},0,#{status},now())
+    </insert>
+
+    <!--保存小说扩展信息-->
+    <insert id="saveNovelExt">
+        INSERT INTO prs_novel_ext_info(novel_id,novel_recommend,novel_collect,novel_click,create_time) VALUES (#{novelId},0,0,0,now())
+    </insert>
+
+    <!--保存作者小说关联表信息-->
+    <insert id="saveAuthorNovel">
+        INSERT INTO prs_author_novel(novel_id,user_id,status,create_time) VALUE (#{novelId},#{userId},0,now())
+    </insert>
+
+    <!--保存小说章节信息-->
+    <insert id="saveChapter" parameterType="com.sinocontact.app.entity.Chapter">
+        INSERT INTO prs_chapter(novel_id,chapter_name,chapter_content,create_time,status) VALUE (#{novelId},#{chapterName},#{chapterContent},#{createTime},0)
+    </insert>
+
+    <!--获取小说当前字数-->
+    <select id="queryNovelWords" resultType="java.lang.Integer">
+        SELECT novel_words FROM prs_novel WHERE novel_id=#{novelId} AND check_status!=-1
+    </select>
+
+    <!--更新小说最新章节信息-->
+    <update id="updateLastChapter">
+        UPDATE prs_novel SET last_chapter=#{chapter.chapterName},last_chapter_update=#{chapter.createTime},novel_words=#{words},update_time=now() WHERE novel_id=#{novelId} AND check_status != -1
+    </update>
+
+    <select id="queryChapterNum" resultType="java.lang.String">
+        SELECT last_chapter FROM prs_novel WHERE novel_id=#{novelId} AND check_status != -1
+    </select>
+
+
+</mapper>

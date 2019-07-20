@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.systemSetting.NovelManageMapper">
+
+    <!--获取所以分类信息-->
+    <select id="getNovelType" resultType="java.lang.String">
+        SELECT type_name FROM prs_novel_type WHERE status=0
+    </select>
+
+    <!--获取所有的小说信息-->
+    <select id="getNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pne.novel_recommend,pne.novel_collect,pne.novel_click,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pne ON pn.novel_id=pne.novel_id LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id
+          <where>
+            <if test="novelStatus != 0">
+                AND pn.check_status = #{novelStatus}
+            </if>
+            <if test="novelType != ''">
+                AND pnt.type_name = #{novelType}
+            </if>
+            <if test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </if>
+          </where>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--获取小说总条数-->
+    <select id="getNovelCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pne ON pn.novel_id=pne.novel_id LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id
+        <where>
+            <if test="novelStatus != 0">
+                AND pn.check_status = #{novelStatus}
+            </if>
+            <if test="novelType != ''">
+                AND pnt.type_name = #{novelType}
+            </if>
+            <if test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--小说改为和谐状态-->
+    <update id="updateNovelNoPass">
+        UPDATE prs_novel SET check_status=-1,check_info=#{reason},check_time=now(),update_time=now() WHERE novel_id IN
+        <foreach collection="idList" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--小说状态改为上架-->
+    <update id="updateNovelPass">
+        UPDATE prs_novel SET check_status=1,check_info=#{reason},check_time=now(),update_time=now() WHERE novel_id IN
+        <foreach collection="idList" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

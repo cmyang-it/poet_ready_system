@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html" >
+    <style>
+        .layui-btn-deleteImg {
+            margin: 10px 0 0 190px;
+        }
+    </style>
+</head>
+<body>
+<!--所有作品页开始-->
+<div class="layui-fluid" id="indexPage">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12" >
+            <div class="layui-card">
+                <div class="layui-card-header">所有作品</div>
+                <div class="layui-card-body">
+                    <div class="layui-tab layui-tab-brief" lay-filter="tab">
+                        <div class="layui-tab-content">
+                            <table class="layui-hide" id="table_data"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--所有作品页结束-->
+
+<!--修改小说信息页开始-->
+<div class="layui-fluid layui-hide" style="width: 50%;" id="modifyPage">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12" >
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    修改小说信息
+                    <button class="layui-btn layui-btn-xs" style="float: right;margin: 10px;" id="back">返回列表</button>
+                </div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" lay-filter="component-form-group">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">名称</label>
+                            <div class="layui-input-block" >
+                                <input type="text" id="novelName" style="width: 90%" onblur="checkNovelName();" maxlength="15" minlength="1" lay-verify="title" autocomplete="off" placeholder="请输入小说名称" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">类型</label>
+                            <div class="layui-input-block" style="width: 78%">
+                                <select id="novelType"  lay-filter="novelType">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">封面</label>
+                            <div class="layui-upload-drag" id="novelImage">
+                                <i class="layui-icon"></i>
+                                <p>点击上传，或将文件拖拽到此处</p>
+                            </div>
+                            <div id="deleteBtn">
+                                <a class="layui-btn layui-btn-deleteImg" id="deleteImg">删除封面</a>
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">简介</label>
+                            <div class="layui-input-block" >
+                                <textarea id="novelInfo" style="width: 90%"  placeholder="请输入简介" class="layui-textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">关键字</label>
+                            <div class="layui-input-block" >
+                                <input type="text" id="keyword" style="width: 90%" lay-verify="title" autocomplete="off" placeholder="请输入关键字，以‘英文逗号’隔开" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-block" style="width: 78%">
+                                <select id="status"  lay-filter="status">
+                                    <option value=""></option>
+                                    <option value="1">连载中</option>
+                                    <option value="2">已完结</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="text" class="layui-hide" id="novelId">
+
+                        <div class="layui-form-item layui-layout-admin">
+                            <div class="layui-input-block">
+                                <div class="layui-footer" style="left: 0;">
+                                    <a class="layui-btn"  id="submit">立即提交</a>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--修改小说信息页结束-->
+
+
+<!--上传章节信息页开始-->
+<div class="layui-fluid layui-hide" id="uploadChapterPage">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12" >
+            <div class="layui-card">
+                <div class="layui-card-header">
+                   上传章节
+                </div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" lay-filter="component-form-group">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" id="chapterName"></label>
+                            <div class="layui-input-block" >
+                                <input type="text" id="chapterTitle"  maxlength="15" minlength="1" lay-verify="title" autocomplete="off" placeholder="请输入章节名称" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" >章节内容</label>
+                            <div class="layui-input-block" >
+                                <textarea id="edit" style="display: none;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item layui-layout-admin">
+                            <div class="layui-input-block">
+                                <div class="layui-footer" style="left: 0;">
+                                    <a class="layui-btn"  id="submitChapter">立即提交</a>
+                                    <a class="layui-btn layui-btn-primary" id="backList">返回列表</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--上传章节信息页结束-->
+
+
+<script src="${ctx}/js/jquery.js" type="text/javascript"></script>
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+<script type="text/javascript">
+    var checkNovelNameStatus = true;
+    layui.use(['layer','table','upload','layedit'],function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            form = layui.form,
+            upload = layui.upload,
+            layedit = layui.layedit,
+            table = layui.table;
+
+        form.render();
+
+        var index = layedit.build('edit',{
+            tool: [
+                'strong' //加粗
+                ,'|' //分割线
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'help' //帮助
+            ]
+        });
+
+        //获取分类下拉选框数据
+        $(function () {
+            $.ajax({
+                url : '${ctx}/novelManage/selectData',
+                type : 'get',
+                dataType : 'json',
+                success : function (resp) {
+                    $("#novelType").empty();
+                    if (resp.code == 0){
+                        var typeArray = resp.data;
+                        console.log(typeArray);
+                        var optionHtml = "";
+                        $("#novelType").prepend("<option value=\"\" selected>请选择分类</option>");
+                        for (var i=0;i<typeArray.length;i++){
+                            optionHtml += "<option value=\""+typeArray[i]+"\">"+typeArray[i]+"</option>";
+                        }
+                        $("#novelType").append(optionHtml);
+                        form.render('select');
+                    } else{
+                        layer.msg('获取下拉选框数据异常！！！',{icon:5,time:1000});
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        });
+
+        table.render({
+            elem: '#table_data'
+            , url: '${ctx}/author/novelList'
+            , cols: [[
+                {field: 'p', align: 'center', title: '序号', type: 'numbers',unresize: true},//type 为 numbers及开启自动序号 与前面的 field无关
+                {field: 'novelName', align: 'center', title: '书名',width:'15%',unresize: true},
+                {field: 'novelInfo', align: 'center', title: '简介',width:'20%',unresize: true},
+                {field: 'novelTypeStr', align: 'center', title: '类型',width:'10%',unresize: true},
+                {field: 'lastChapter', align: 'center', title: '最新章节',width:'15%',unresize: true},
+                {field: 'lastChapterUpdate', align: 'center', title: '更新时间',width:'14%',unresize: true},
+                {field: 'createTime', align: 'center', title: '上传时间',width:'13%',unresize: true},
+                {field: 'operate', align: 'center', title: '操作',width:'10%',unresize: true,templet:"#operate"}
+            ]]
+            , page: true //是否显示分页
+            , limits: [10, 20, 50, 100]
+            , limit: 10 //每页默认显示的数量
+            , id: "tableReload"
+            , where: {}
+            , text: {
+                none: '暂无相关数据'
+            }
+        });
+
+        $("#back").on('click',function () {
+            $("#modifyPage").addClass("layui-hide");
+            $("#indexPage").removeClass("layui-hide");
+        });
+
+
+        $("#backList").on('click',function () {
+           location.reload();
+        });
+
+        //封面上传
+        upload.render({
+            elem: '#novelImage'
+            ,url: '${ctx}/oss/uploadImg'
+            ,done: function(resp){
+                console.log(resp);
+                if (resp.code === 0){
+                    $("#novelImage").empty();
+                    var imgHtml = "<img src='"+resp.data+"' style='width: 180px;height: 240px;'/>";
+                    $("#novelImage").append(imgHtml);
+                    $("#deleteBtn").removeClass("layui-hide");
+                } else{
+                    layer.msg("上传封面失败，请稍后再试!",{icon:2,time:1200});
+                }
+            }
+        });
+
+        //点击了删除图片按钮
+        $("#deleteImg").on('click',function () {
+            $("#novelImage img").attr("src","");
+            $("#novelImage").empty();
+            var html = "<i class=\"layui-icon\"></i>\n" + "<p>点击上传，或将文件拖拽到此处</p>";
+            $("#novelImage").append(html);
+            $("#deleteBtn").addClass("layui-hide");
+        });
+
+
+        //点击了立即提交
+        $("#submit").on('click',function () {
+            var novelName = $.trim($("#novelName").val());
+            var novelTypeStr = $.trim($("#novelType").val());
+            var novelImg = $("#novelImage img").attr("src");
+            console.log(novelImg);
+            var novelInfo = $.trim($("#novelInfo").val());
+            var keyword = $.trim($("#keyword").val());
+            var status = $("#status").val();
+            var novelId = $("#novelId").val();
+
+            if (checkIsNull(novelName)){
+                layer.msg("请输入小说名称！",{icon:5,time:1200});
+                return;
+            }
+
+            if (checkIsNull(novelTypeStr)) {
+                layer.msg("请选择小说类型！",{icon:5,time:1200});
+                return;
+            }
+
+            if (checkIsNull(novelInfo)){
+                layer.msg("请输入小说简介！",{icon:5,time:1200});
+                return;
+            }
+
+            if (checkIsNull(status)) {
+                layer.msg("请选择小说当前状态！",{icon:5,time:1200});
+                return;
+            }
+
+            //小说名称为重复
+            if (checkNovelNameStatus === true) {
+                $.ajax({
+                    url: '${ctx}/author/updateNovelInfo',
+                    type: 'POST',
+                    data: {
+                        'novelId': novelId,
+                        'novelName' : novelName,
+                        'novelTypeStr' : novelTypeStr,
+                        'novelImg' : novelImg,
+                        'novelInfo' : novelInfo,
+                        'keyword' : keyword,
+                        'status' : status
+                    },
+                    dataType: 'json',
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg("更新成功！",{icon:1,time:1200},function () {
+                                location.reload();
+                            });
+                        } else {
+                            layer.msg("系统异常，请联系管理员！", {icon: 2, time: 1200});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('服务器繁忙，请稍后再试', {
+                            offset: '15px'
+                            , icon: 9
+                            , time: 2000
+                        });
+                    }
+                });
+            }
+        })
+
+
+        //点击了立即提交章节
+        $("#submitChapter").on('click',function () {
+            var chapterTitle = $.trim($("#chapterTitle").val());
+            var chapterNum = $.trim($("#chapterName").text());
+            var chapterContent = layedit.getText(index);
+            var novelId = $("#novelId").val();
+
+            if (checkIsNull(chapterTitle)){
+                layer.msg("章节标题不能为空！",{icon:5,time:1200});
+                return;
+            }
+
+            if (checkIsNull(chapterContent)){
+                layer.msg("章节内容不能为空！",{icon:5,time:1200});
+                return;
+            }
+
+            $.ajax({
+                url : '${ctx}/author/uploadChapter',
+                type:'POST',
+                data :{
+                    'novelId' : novelId,
+                    'chapterNum' : chapterNum,
+                    'chapterTitle' : chapterTitle,
+                    'chapterContent' : chapterContent
+                },
+                dataType :'json',
+                success : function (resp) {
+                    if (resp.code === 0) {
+                        layer.open({
+                            title : '提示',
+                            content: '上传章节成功，是否继续上传？'
+                            ,btn: ['确定', '取消']
+                            ,yes: function(index){
+                                layer.close(index);
+                                $("#chapterTitle").val("");
+                                $("#chapterName").text("第"+resp.data+"章");
+                                $('#LAY_layedit_1').contents().find('body').html('');
+                            }
+                            ,btn2:function (index) {
+                                layer.close(index);
+                                location.reload();
+                            }
+                        });
+                    }else{
+                        layer.msg("保存章节信息异常，请联系管理员",{icon:2,time:1200});
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px'
+                        , icon: 9
+                        , time: 2000
+                    });
+                }
+            })
+        })
+    });
+
+
+    //=================================COMMON====================================
+
+    //校验小说名称是否重复
+    function checkNovelName() {
+        var $ = layui.jquery,
+            layer = layui.layer;
+
+        var novelId = $("#novelId").val();
+        var novelName = $.trim($("#novelName").val());
+
+        $.ajax({
+            url : '${ctx}/author/checkNovelName',
+            type: 'POST',
+            data:{
+                'novelId':novelId,
+                'novelName' : novelName
+            },
+            dataType:'json',
+            success : function (resp) {
+                if (resp.code === -1) {
+                    layer.msg("当前小说名称已经存在",{icon:5,time:1200},function () {
+                        checkNovelNameStatus = false;
+                    });
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px'
+                    , icon: 9
+                    , time: 2000
+                });
+            }
+        });
+    }
+
+    function checkIsNull(val) {
+        return val === "" || val === undefined || val === null;
+    }
+
+    //更新小说详情
+    function updateNovelInfo(novelId) {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            form = layui.form;
+        $("#novelId").val(novelId);
+
+        $.ajax({
+            url   : '${ctx}/author/novelInfo',
+            type  : 'POST',
+            data  : {
+                'novelId':novelId
+            },
+            dataType: 'json',
+            success : function (resp) {
+                if (resp.code === 0){
+                    var novel = resp.data;
+                    console.log(novel);
+                    $("#novelName").val(novel.novelName);
+                    $("#novelType").val(novel.novelTypeStr);
+                    $("#novelInfo").val(novel.novelInfo);
+                    $("#keyword").val(novel.keyword);
+                    if (novel.status === 2) {
+                        $("#status").val('2')
+                    }else{
+                        $("#status").val('1');
+                    }
+                    form.render('select');
+                    if (!checkIsNull(novel.novelImg)){
+                        $("#novelImage").empty();
+                        var imgHtml = "<img src='"+novel.novelImg+"' style='width: 180px;height: 240px;'/>";
+                        $("#novelImage").append(imgHtml);
+                        $("#deleteBtn").removeClass("layui-hide");
+                    }else{
+                        $("#deleteBtn").addClass("layui-hide");
+                    }
+                    $("#indexPage").addClass("layui-hide");
+                    $("#modifyPage").removeClass("layui-hide");
+                }else{
+                    layer.msg("系统异常",{icon :2,time:1200});
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px'
+                    , icon: 9
+                    , time: 2000
+                });
+            }
+        });
+    }
+
+    //查看小说详情
+    function showNovelInfo(novelId) {
+
+    }
+
+    //上传小说章节
+    function uploadChapter(novelId) {
+        var $ = layui.jquery;
+        $.ajax({
+            url : '${ctx}/author/queryChapterNum',
+            type : 'POST',
+            data : {
+                'novelId' : novelId
+            },
+            dataType : 'json',
+            success : function (resp) {
+                if (resp.code === 0) {
+                    $("#chapterName").text("第"+resp.data+"章");
+                    $("#modifyPage").addClass("layui-hide");
+                    $("#indexPage").addClass("layui-hide");
+                    $("#novelId").val(novelId);
+                    $("#uploadChapterPage").removeClass("layui-hide");
+                }else {
+                   layer.msg("系统异常，请联系管理员！",{icon:2,time:1200});
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试', {
+                    offset: '15px'
+                    , icon: 9
+                    , time: 2000
+                });
+            }
+        })
+    }
+
+
+  </script>
+<script type="text/html" id="operate">
+    {{#  if(d.status == 2){ }}
+    <button class="layui-btn layui-btn-xs" onclick="showNovelInfo('{{d.novelId}}')">查看详情</button>
+    {{# }if(d.status == 1) { }}
+    <button class="layui-btn layui-btn-xs" onclick="updateNovelInfo('{{d.novelId}}')">修改</button>
+    <button class="layui-btn layui-btn-xs" onclick="uploadChapter('{{d.novelId}}')">上传章节</button>
+    {{# } }}
+</script>
+</body>
+</html>
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.memberCenter.BookCaseMapper">
+
+    <!--获取用户书架信息-->
+    <select id="queryBookCaseList" resultType="com.sinocontact.app.entity.BookCaseInfo">
+        SELECT pun.*,pc.chapter_name,pn.novel_name,pn.last_chapter FROM prs_user_novel AS pun LEFT JOIN prs_chapter AS pc ON pun.chapter_id=pc.chapter_id LEFT JOIN prs_novel AS pn ON pun.novel_id=pn.novel_id WHERE pun.user_id=#{userId} AND pun.status=0
+    </select>
+
+    <!--通过小说id和用户id删除用户书架小说-->
+    <update id="deleteNovelById">
+        UPDATE prs_user_novel SET status=-1 WHERE user_id=#{userId} AND novel_id=#{novelId}
+    </update>
+
+    <!--添加小说信息到书架-->
+    <insert id="saveBookCaseInfo" parameterType="com.sinocontact.app.entity.BookCaseInfo">
+        INSERT INTO prs_user_novel(novel_id,chapter_id,user_id,create_time,update_time) VALUES(#{bookCaseInfo.novelId},#{bookCaseInfo.chapterId},#{bookCaseinfo.userId},now(),now())
+    </insert>
+</mapper>

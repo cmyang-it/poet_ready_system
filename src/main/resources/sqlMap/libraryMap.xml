@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.library.LibraryMapper">
+
+    <!--全部作品-->
+    <select id="queryTotalNovelList" resultType="com.sinocontact.app.entity.Novel">
+      SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end}
+          <if test="novelInfo != ''">
+              AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+          </if>
+          <if test="novelType != ''">
+              AND pnt.type_name = #{novelType}
+          </if>
+          <if test="novelStatus != 0">
+              AND pn.status = #{novelStatus}
+          </if>
+        <choose>
+          <when test="sortFlag == 0">
+              ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+          </when>
+          <when test="sortFlag == 1">
+              ORDER BY pnei.novel_collect DESC
+          </when>
+          <when test="sortFlag == 2">
+              ORDER BY pnei.novel_recommend DESC
+          </when>
+          <when test="sortFlag == 3">
+              ORDER BY pnei.novel_click DESC
+          </when>
+          <when test="sortFlag == 4">
+              ORDER BY pn.last_chapter_update DESC
+          </when>
+      </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--小说总数-->
+    <select id="getNovelCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end}
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelType != ''">
+                AND pnt.type_name = #{novelType}
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--都市小说-->
+    <select id="queryTotalCityNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=1
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--都市热门小说-->
+    <select id="queryCityHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=1 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--都市小说总数-->
+    <select id="getNovelCityCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=1
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--玄幻热门小说-->
+    <select id="queryFantasyHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=2 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--玄幻小说总数-->
+    <select id="getNovelFantasyCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=2
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--玄幻小说-->
+    <select id="queryTotalFantasyNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=2
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--仙侠热门小说-->
+    <select id="queryFairyHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=9 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--仙侠小说总数-->
+    <select id="getNovelFairyCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=9
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--仙侠小说-->
+    <select id="queryTotalFairyNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=9
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--科幻热门小说-->
+    <select id="queryScienceFictionHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=3 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--科幻小说总数-->
+    <select id="getNovelScienceFictionCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=3
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--科幻小说-->
+    <select id="queryTotalScienceFictionNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=3
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--历史热门小说-->
+    <select id="queryMilitaryHistoryHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=4 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--历史小说总数-->
+    <select id="getNovelMilitaryHistoryCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=4
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--历史小说-->
+    <select id="queryTotalMilitaryHistoryNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=4
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--武侠热门小说-->
+    <select id="queryDragonHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=5 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--武侠小说总数-->
+    <select id="getNovelDragonCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=5
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--武侠小说-->
+    <select id="queryTotalDragonNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=5
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--网游竞技小说-->
+    <select id="queryAthleticHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=6 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--网游竞技总数-->
+    <select id="getNovelAthleticCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=6
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--网游竞技-->
+    <select id="queryTotalAthleticNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=6
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+
+    <!--悬疑灵异小说-->
+    <select id="querySuspenseParanormalHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=7 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--悬疑灵异总数-->
+    <select id="getNovelSuspenseParanormalCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=7
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--悬疑灵异-->
+    <select id="queryTotalSuspenseParanormalNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=7
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--其他小说小说-->
+    <select id="queryOtherHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 AND pn.novel_type=10 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,8
+    </select>
+
+    <!--其他小说总数-->
+    <select id="getNovelOtherCount" resultType="java.lang.Integer">
+        SELECT COUNT(pn.novel_id) FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=10
+        <choose>
+            <when test="novelInfo != ''">
+                AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+            </when>
+            <when test="novelStatus != 0">
+                AND pn.status = #{novelStatus}
+            </when>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+    </select>
+
+    <!--其他小说-->
+    <select id="queryTotalOtherNovelList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_type AS pnt ON pn.novel_type=pnt.type_id LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.novel_words BETWEEN #{start} AND #{end} AND pn.novel_type=10
+        <if test="novelInfo != ''">
+            AND pn.novel_author LIKE "%"#{novelInfo}"%" OR pn.novel_name LIKE "%"#{novelInfo}"%"
+        </if>
+        <if test="novelStatus != 0">
+            AND pn.status = #{novelStatus}
+        </if>
+        <choose>
+            <when test="sortFlag == 0">
+                ORDER BY pnei.novel_recommend+pnei.novel_collect+pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 1">
+                ORDER BY pnei.novel_collect DESC
+            </when>
+            <when test="sortFlag == 2">
+                ORDER BY pnei.novel_recommend DESC
+            </when>
+            <when test="sortFlag == 3">
+                ORDER BY pnei.novel_click DESC
+            </when>
+            <when test="sortFlag == 4">
+                ORDER BY pn.last_chapter_update DESC
+            </when>
+        </choose>
+        LIMIT #{page},#{pageSize}
+    </select>
+
+</mapper>

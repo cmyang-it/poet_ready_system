@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.systemSetting.ClassifyManageMapper">
+
+    <!--获取所有的分类信息-->
+    <select id="selectNovelTypeList" resultType="com.sinocontact.app.entity.NovelType">
+        SELECT * FROM prs_novel_type WHERE status=0
+    </select>
+
+    <!--获取分类的总条数-->
+    <select id="selectNovelTypeCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM prs_novel_type WHERE status=0
+    </select>
+
+    <!--更新分类信息-->
+    <update id="updateNovelType" parameterType="com.sinocontact.app.entity.NovelType">
+        UPDATE prs_novel_type SET type_name=#{typeName},update_time=now()
+        WHERE type_id=#{typeId}
+    </update>
+
+    <!--通过id删除分类信息-->
+    <update id="deleteNovelTypeById" parameterType="java.lang.Integer">
+         UPDATE prs_novel_type SET status=-1 WHERE type_id=#{typeId}
+    </update>
+
+    <!--添加分类信息-->
+    <insert id="addNovelType" parameterType="java.lang.String">
+        INSERT INTO prs_novel_type(type_name,create_time) VALUES(#{typeName},now())
+    </insert>
+</mapper>

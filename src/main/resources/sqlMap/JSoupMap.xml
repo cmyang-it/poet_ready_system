@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.jsoup.JSoupMapper">
+    <!--保存带爬取小说-->
+    <insert id="saveNovelUrl" >
+        INSERT INTO prs_crawl_novel(novel_name,novel_author,dd_url,dd_chapter_url,fl_url,create_time,status) VALUE (#{novelName},#{novelAuthor},#{ddUrl},#{ddChapterUrl},#{flUrl},now(),0)
+    </insert>
+
+    <!--获取所有待爬取的小说信息-->
+    <select id="queryNovelList" resultType="com.sinocontact.app.entity.CrawlNovel">
+        SELECT * FROM prs_crawl_novel WHERE status=0
+    </select>
+
+    <!--保存小说基本信息-->
+    <insert id="saveNovelInfo" useGeneratedKeys="true" keyProperty="novelId" parameterType="com.sinocontact.app.entity.Novel">
+        INSERT INTO prs_novel(novel_img,novel_name,novel_type,novel_author,novel_info,keyword,last_chapter,last_chapter_update,novel_words,status,check_status,create_time) VALUE (#{novelImg},#{novelName},#{novelType},#{novelAuthor},#{novelInfo},#{keyword},#{lastChapter},#{lastChapterUpdate},#{novelWords},#{status},1,now())
+    </insert>
+
+    <!--保存小说扩展信息-->
+    <insert id="saveNovelExtInfo" parameterType="com.sinocontact.app.entity.Novel">
+        INSERT INTO prs_novel_ext_info(novel_id,novel_recommend,novel_collect,novel_click,create_time) VALUE (#{novelId},#{novelRecommend},#{novelCollect},#{novelClick},now())
+    </insert>
+
+    <!--更新带爬取小说的状态-->
+    <update id="updateCrawlNovel">
+        UPDATE prs_crawl_novel SET status=-1,update_time=now() WHERE id=#{id}
+    </update>
+
+    <!--保存小说章节信息-->
+    <insert id="saveChapterInfo" parameterType="java.util.List">
+        INSERT INTO prs_chapter(novel_id,chapter_name,chapter_content,create_time,status) VALUES
+        <foreach collection="list" item="chapter" index="index"  separator="," >
+            (#{chapter.novelId},#{chapter.chapterName},#{chapter.chapterContent},now(),0)
+        </foreach>
+    </insert>
+
+</mapper>

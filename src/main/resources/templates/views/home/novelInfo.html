@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<#include "/common/common.html" >
+<html>
+<head>
+  <#include "/common/head.html" >
+    <style>
+
+    </style>
+    <link href="${ctx}/layuiadmin/style/template.css" rel="stylesheet" media="all">
+</head>
+<body>
+<div class="layui-fluid layadmin-homepage-fluid">
+    <div class="layui-row layui-col-space8">
+        <div class="layui-col-md2">
+            <div class="layadmin-homepage-panel layadmin-homepage-shadow">
+                <div class="layui-card text-center">
+                    <div class="layui-card-body">
+                        <div class="layadmin-homepage-pad-ver">
+                            <img class="layadmin-homepage-pad-img" src="${novel.novelImg!}" width="96" height="96">
+                        </div>
+                        <h4 class="layadmin-homepage-font">${novel.novelName!}</h4>
+                        <p class="layadmin-homepage-min-font">${novel.novelTypeStr!}</p>
+                        <button class="layui-btn layui-btn-fluid" id="addBookCase">加入书架</button>
+                    </div>
+                </div>
+                <p class="layadmin-homepage-about">
+                    小说信息
+                </p>
+                <ul class="layadmin-homepage-list-group">
+                    <#if novel.status == 1>
+                        <li class="list-group-item"><i class="layui-icon layui-icon-star"></i> 连载中</li>
+                        <#else>
+                            <li class="list-group-item"><i class="layui-icon layui-icon-star"></i> 已完结</li>
+                    </#if>
+                    <li class="list-group-item"><i class="layui-icon layui-icon-username"></i> ${novel.novelAuthor!}</li>
+                    <li class="list-group-item"><i class="layui-icon layui-icon-theme"></i> 更新时间 &nbsp;&nbsp;&nbsp;${novel.lastChapterUpdate!}</li>
+                </ul>
+                <div class="layadmin-homepage-pad-hor" style="margin-bottom: 15px;">
+                    <mdall>${novel.novelInfo!}</mdall>
+                </div>
+                <p class="layadmin-homepage-about">
+                    标签
+                </p>
+                <ul class="layadmin-homepage-list-inline" id="keyword">
+
+                </ul>
+
+            </div>
+        </div>
+        <div class="layui-col-md10">
+            <div class="layui-fluid layadmin-homepage-content">
+                <div class="layui-row  layadmin-homepage-padding15" id="top">
+                    <hr class="new-section-xs"/>
+                    <div class="layui-col-md7 layadmin-homepage-padding8">
+                        <div class="layui-row layadmin-homepage-text-center">
+                            <div class="layui-col-md3 layui-col-sm3 layui-col-xs3">
+                                <p class="h4">${novel.novelWords!}</p>
+                                <mdall>总字数</mdall>
+                            </div>
+                            <div class="layui-col-md3 layui-col-sm3 layui-col-xs3">
+                                <p class="h4">${novel.novelRecommend!}</p>
+                                <mdall>总推荐</mdall>
+                            </div>
+                            <div class="layui-col-md3 layui-col-sm3 layui-col-xs3">
+                                <p class="h4">${novel.novelCollect!}</p>
+                                <mdall>总收藏</mdall>
+                            </div>
+                            <div class="layui-col-md3 layui-col-sm3 layui-col-xs3">
+                                <p class="h4">${novel.novelClick!}</p>
+                                <mdall>总点击</mdall>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md5">
+                        <a href="javascript:void (0);" class="layui-btn layui-btn-normal" onclick="setRecommend('${novel.novelId!}','${user.recommendTimes!}')">推荐</a>
+                        <a href="javascript:void (0);" class="layui-btn" onclick="setCollection('${novel.novelId!}')">收藏</a>
+                    </div>
+                </div>
+                <div class="layui-row layui-col-space20 layadmin-homepage-list-imgtxt">
+                    <div class="layui-col-md9">
+                        <div class="grid-demo">
+                            <div class="panel-body layadmin-homepage-shadow">
+                                <div class="media-body">
+                                    <div class="layuiadmin-card-link" id="chapterPage">
+                                        <#list list as item>
+                                            <a href="javascript:void(0);" style="text-align: center" onclick="jumpChapter('${novel.novelId!}','${item.chapterId!}')">${item.chapterName}</a>
+                                        </#list>
+                                    </div>
+                                    <div class="layui-hide" id="chapterInfoPage">
+                                        <div id="chapter">
+                                        </div>
+                                        <div style="text-align: center;margin-top: 20px">
+                                            <button class="layui-btn" id="previousChapter">上一章</button>
+                                            <button class="layui-btn" id="backChapterList">返回目录</button>
+                                            <button class="layui-btn" id="nextChapter">下一章</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="grid-demo">
+                            <div class="layui-card homepage-top">
+                                <div class="layui-card-header">
+                                    <h3 class="panel-title">
+                                        <i class="layui-icon layui-icon-loading"></i>
+                                        最新章节
+                                    </h3>
+                                </div>
+                                <div class="layui-card-body">
+                                    <div class="layui-row layui-col-space15" style="height: 150px">
+                                        <ul class="layadmin-homepage-list-group" id="newChapter">
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-card homepage-bottom">
+                                <div class="layui-card-header">
+                                    <h3 class="panel-title">
+                                        <i class="layui-icon layui-icon-file"></i>
+                                        评论
+                                        <a href="javascript:void(0);" onclick="setComment('${novel.novelId!}')" class="layui-a-tips">我要评论</a>
+                                    </h3>
+                                </div>
+                                <div class="layui-card-body">
+                                    <div class="layui-row layui-col-space15" style="margin-left: 5px" id="comment">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="${ctx}/layuiadmin/layui/layui.js"></script>
+<script type="text/javascript">
+    var novelId = '${novel.novelId!}';
+    var novelName = '${novel.novelName!}';
+    var novelAuthor = '${novel.novelAuthor!}';
+    var userId = '${user.userId!}';
+    layui.use(['layer'],function () {
+        var $ = layui.jquery,
+            layer = layui.layer;
+
+        //处理标签
+        $(function () {
+            var tag = '${novel.keyword!}';
+            console.log(tag);
+            $("#keyword").empty();
+            var html = '';
+            if (!checkIsNull(tag)){
+                var keywords = tag.split(",");
+                for (var i = 0 ;i<keywords.length;i++){
+                    html += '<a href="javascript:void(0);" class="layui-btn layui-btn-primary">'+keywords[i]+'</a>';
+                }
+            }else{
+                html += '<a href="javascript:void(0);" class="layui-btn layui-btn-primary">'+novelName+'</a>';
+                html += '<a href="javascript:void(0);" class="layui-btn layui-btn-primary">'+novelAuthor+'</a>';
+            }
+            $("#keyword").append(html);
+        });
+
+        //获取本书的所有用户评论
+        $(function () {
+           $.ajax({
+               url : '${ctx}/home/getNovelComment',
+               type : 'POST',
+               data : {
+                   'novelId' : novelId
+               },
+               dataType : 'json',
+               success : function (resp) {
+                   var comment = resp.data;
+                   if (resp.code === 0){
+                       $("#comment").empty();
+                       var html = "";
+                        for (var i=0;i<comment.length;i++){
+                            html += "<a href='javascript:void(0);' class='layadmin-privateletterlist-item'>";
+                            html += "<div class='meida-right'>";
+                            html += "<div>";
+                            html += "<span><i class='layui-icon layui-icon-user'></i>&nbsp;"+comment[i].nickname+"</span>";
+                            html += "<mdall>&nbsp;&nbsp;&nbsp;&nbsp;"+comment[i].userCommentTime+"</mdall>";
+                            html += "</div>";
+                            html += "<mdall>"+comment[i].userCommentInfo+"</mdall>";
+                            html += "</div>";
+                            html += "</a>";
+                        }
+                        if (comment.length > 0) {
+                            html += '<div class="layui-col-md12 margin-top10">';
+                            html += '<a href="javascript:void(0);" style="width: 280px;margin-left: 10px" id="lotsOf"  class="layui-btn layui-btn-primary">更多</a>';
+                            html += '</div>';
+                        }else{
+                            html += "<a href='javascript:void(0);' class='layadmin-privateletterlist-item'>";
+                            html += "<div class='meida-right'>";
+                            html += "<div>";
+                            html += "<mdall>&nbsp;&nbsp;&nbsp;&nbsp;暂无评论</mdall>";
+                            html += "</div>";
+                            html += "</div>";
+                            html += "</a>";
+                            html += '<div class="layui-col-md12 margin-top10">';
+                            html += '<a href="javascript:void(0);" style="width: 280px;margin-left: 10px" onclick="setComment('+userId+','+novelId+')"  class="layui-btn layui-btn-primary">抢沙发</a>';
+                            html += '</div>';
+                        }
+                        $("#comment").append(html);
+                   } else {
+                       layer.msg('获取评论失败，请刷新页面！',{
+                           offset : '165px',
+                           icon : 9,
+                           time : 1200
+                       });
+                   }
+               },
+               error : function () {
+                   layer.msg('服务器繁忙，请稍后再试',{
+                       offset : '15px',
+                       icon : 9,
+                       time : 2000
+                   });
+               }
+           })
+        });
+
+        //获取最新的章节
+        $(function () {
+            $.ajax({
+                url : '${ctx}/home/getNewChapter',
+                type : 'post',
+                data : {
+                  'novelId' : novelId
+                },
+                dataType : 'json',
+                success : function (resp) {
+                    if (resp.code === 0){
+                        var chapterArray = resp.data;
+                        $("#newChapter").empty();
+                        var html = "";
+                        for (var i=0;i<chapterArray.length;i++){
+                            html += "<li class='list-group-item' style='margin-bottom: 5px'><a href='javascript:void(0);' style='color: dodgerblue;' onclick='jumpChapter("+novelId+","+chapterArray[i].chapterId+")'>"+chapterArray[i].chapterName+"</li>";
+                        }
+                        $("#newChapter").append(html);
+                    } else {
+                        layer.msg('获取小说最新章节失败，请刷新页面！',{
+                            offset : '165px',
+                            icon : 9,
+                            time : 1200
+                        });
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试',{
+                        offset : '15px',
+                        icon : 9,
+                        time : 2000
+                    });
+                }
+            })
+        });
+
+        //点击了添加书架
+        $("#addBookCase").on('click',function () {
+            var ids = $("#chapterAllId").val();
+            var chapterId = 0;
+            console.log(novelId);
+            if (!checkIsNull(ids)){
+                chapterId = ids.split(",")[1];
+            }
+            $.ajax({
+                url : '${ctx}/home/addBookCase',
+                type : 'POST',
+                data : {
+                    'novelId' : novelId,
+                    'chapterId' : chapterId
+                },
+                dataType : 'json',
+                success : function (resp) {
+                    if (resp.code === 0){
+                        layer.open({
+                            title : '提示',
+                            content: '加入书架成功，前往书架？'
+                            ,btn: ['确定', '取消']
+                            ,yes: function(index){
+                                var path = basePath+'/bookCase/index';
+                                layer.close(index);
+                                parent.layui.index.openTabsPage(path,"我的书架");
+                            }
+                        });
+                    } else {
+                        layer.msg('加入书架失败，请刷新页面！',{
+                            offset : '165px',
+                            icon : 2,
+                            time : 1200
+                        });
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试',{
+                        offset : '15px',
+                        icon : 9,
+                        time : 2000
+                    });
+                }
+            })
+
+        });
+
+        //点击了返回目录
+        $("#backChapterList").on('click',function () {
+            $("#chapterInfoPage").addClass("layui-hide");
+            $("#top").removeClass("layui-hide");
+            $("#chapterPage").removeClass("layui-hide");
+            //跳到页面顶部
+            $("html,body").animate({"scrollTop":0});
+        });
+
+
+        //点击了上一章
+        $("#previousChapter").on('click',function () {
+           var ids = $("#chapterAllId").val().split(",");
+           console.log("ids>>>>"+ids);
+           var novelId = ids[0];
+           var chapter_id = ids[1];
+           $.ajax({
+               url : '${ctx}/home/previousChapter',
+               type : 'POST',
+               data : {
+                   'novelId' : novelId,
+                   'chapterId' : chapter_id
+               },
+               dataType : 'json',
+               success : function (resp) {
+                   if (resp.code === 0) {
+                       $("#chapter").empty();
+                       var title = resp.data.chapterName;
+                       var chapterContent = resp.data.chapterContent;
+                       var chapterId = resp.data.chapterId;
+                       var html = "";
+                       html += "<div style='font-size: 22px;text-align: center;margin: 10px 5px 10px 5px '><moddl>"+title+"</moddl></div>";
+                       html += "<moddl style='font-size:18px;margin-top: 20px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+chapterContent+"</moddl>";
+                       html += "<input class='layui-hide' type='text' value='"+novelId+","+chapterId+"' id='chapterAllId'/>";
+                       $("html,body").animate({"scrollTop":0});
+                       $("#chapter").append(html);
+                   }else if (resp.code === 1) {
+                     layer.msg("当前为第一章！",{icon:0,time:1200});
+                   } else {
+                       layer.msg("获取上一章失败，请刷新页面！",{icon:5,time:1200});
+                   }
+               },
+               error : function () {
+                   layer.msg('服务器繁忙，请稍后再试',{
+                       offset : '15px',
+                       icon : 9,
+                       time : 2000
+                   });
+               }
+           });
+        });
+
+        //点击了下一章
+        $("#nextChapter").on('click',function () {
+            var ids = $("#chapterAllId").val().split(",");
+            console.log("ids>>>>" + ids);
+            var novelId = ids[0];
+            var chapter_id = ids[1];
+            $.ajax({
+                url: '${ctx}/home/nextChapter',
+                type: 'POST',
+                data: {
+                    'novelId': novelId,
+                    'chapterId': chapter_id
+                },
+                dataType: 'json',
+                success: function (resp) {
+                    if (resp.code === 0) {
+                        $("#chapter").empty();
+                        var title = resp.data.chapterName;
+                        var chapterContent = resp.data.chapterContent;
+                        var chapterId = resp.data.chapterId;
+                        var html = "";
+                        html += "<div style='font-size: 22px;text-align: center;margin: 10px 5px 10px 5px '><moddl>" + title + "</moddl></div>";
+                        html += "<moddl style='font-size:18px;margin-top: 20px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + chapterContent + "</moddl>";
+                        html += "<input class='layui-hide' type='text' value='" + novelId + "," + chapterId + "' id='chapterAllId'/>";
+                        $("html,body").animate({"scrollTop":0});
+                        $("#chapter").append(html);
+                    }else if (resp.code === 1) {
+                        layer.msg("当前为最后一章！",{icon:0,time:1200});
+                    } else {
+                        layer.msg("获取下一章失败，请刷新页面！", {icon: 5, time: 1200});
+                    }
+                },
+                error: function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px',
+                        icon: 9,
+                        time: 2000
+                    });
+                }
+            });
+        });
+
+
+    });
+
+    //跳转到章节阅读
+    function jumpChapter(novelId, chapterId) {
+        console.log(novelId+">>>"+chapterId);
+        var $ = layui.jquery,
+            layer = layui.layer;
+
+        $.ajax({
+            url : '${ctx}/home/getChapterInfo',
+            type : 'POST',
+            data : {
+                'novelId' : novelId,
+                'chapterId' : chapterId
+            },
+            dataType : 'json',
+            success : function (resp) {
+                $("#chapter").empty();
+                if (resp.code === 0) {
+                    var title = resp.data.chapterName;
+                    var chapterContent = resp.data.chapterContent;
+                    var html = "";
+                    html += "<div style='font-size: 22px;text-align: center;margin: 10px 5px 10px 5px '><moddl>"+title+"</moddl></div>";
+                    html += "<moddl style='font-size:18px;margin-top: 20px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+chapterContent+"</moddl>";
+                    html += "<input class='layui-hide' type='text' value='"+novelId+","+chapterId+"' id='chapterAllId'/>";
+                    $("#chapter").append(html);
+                    $("#top").addClass("layui-hide");
+                    $("#chapterPage").addClass("layui-hide");
+                    $("#chapterInfoPage").removeClass("layui-hide");
+                }else{
+                    layer.msg("章节获取失败，请刷新页面！",{icon : 5,time:1200});
+                }
+            },
+            error : function () {
+                layer.msg('服务器繁忙，请稍后再试',{
+                    offset : '15px',
+                    icon : 9,
+                    time : 2000
+                });
+            }
+        });
+    }
+
+    //点击了留言
+    function setComment(novelId) {
+        var $ = layui.jquery,
+            layer = layui.layer;
+        layer.prompt({
+            formType : 2,
+            title: '评论',
+            area : ['400px','300px'],
+        }, function(value, index){
+            var comment = $.trim(value);
+            console.log(comment);
+            if (checkIsNull(comment)){
+                layer.msg("请输入评论！",{icon:5,time:1200});
+                return;
+            }
+            $.ajax({
+                url : '${ctx}/home/saveComment',
+                type : 'POST',
+                data : {
+                    'novelId' : novelId,
+                    'comment' : comment
+                },
+                dataType : 'json',
+                success : function (resp) {
+                    if (resp.code ===  0){
+                        layer.msg("评论成功！",{icon:1,time:1200},function () {
+                            location.reload();
+                        })
+                    } else{
+                        layer.msg("系统异常，请联系管理员！",{icon:2,time:1200});
+                        layer.close(index);
+                    }
+                },
+                error : function () {
+                    layer.msg('服务器繁忙，请稍后再试', {
+                        offset: '15px',
+                        icon: 9,
+                        time: 2000
+                    });
+                }
+            })
+        });
+    }
+
+    function checkIsNull(val) {
+        return val === "" || val === undefined || val === null;
+    }
+</script>
+</body>
+</html>
+

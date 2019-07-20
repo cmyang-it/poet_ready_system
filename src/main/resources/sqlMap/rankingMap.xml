@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.ranking.RankingMapper">
+
+    <!--总点击榜-->
+    <select id="queryClickNovelLimit" resultType="com.sinocontact.app.entity.Novel">
+         SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_click DESC LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--总收藏榜-->
+    <select id="queryCollectList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_collect DESC LIMIT #{page},#{pageSize}
+    </select>
+    
+    <!--总排行榜-->
+    <select id="queryTotalNumber" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--总推荐榜-->
+    <select id="queryRecommendList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_recommend DESC LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--最近更新-->
+    <select id="queryNowUpdate" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pn.last_chapter_update DESC LIMIT #{page},#{pageSize}
+    </select>
+    
+    <!--最新入库-->
+    <select id="queryNowPutStorage" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pn.create_time DESC LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--字数排行-->
+    <select id="queryWordsList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pn.novel_words DESC LIMIT #{page},#{pageSize}
+    </select>
+
+    <!--获取所有小说-->
+    <select id="queryNovelCount" resultType="java.lang.Integer">
+        SELECT COUNT(novel_id) FROM prs_novel WHERE status>0
+    </select>
+
+</mapper>

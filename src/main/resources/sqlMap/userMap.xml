@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sinocontact.app.dao.user.UserMapper">
+
+    <!--通过用户名查询用户信息-->
+    <select id="checkUser" parameterType="java.lang.String" resultType="com.sinocontact.app.entity.User">
+        select * from prs_user WHERE account=#{username}
+    </select>
+
+    <!--通过手机号查询用户信息-->
+    <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.sinocontact.app.entity.User">
+        SELECT * FROM prs_user WHERE phone_number=#{phone}
+    </select>
+
+    <!--插入用户信息（只包含手机号）-->
+    <insert id="insertUserOnlyPhone" parameterType="com.sinocontact.app.entity.User" useGeneratedKeys="true" keyProperty="user_id">
+      INSERT INTO prs_user(phone_number,create_time) VALUES (#{phoneNumber},NOW())
+    </insert>
+
+    <!--更新用户登录时间-->
+    <update id="updateLoginTime" parameterType="java.lang.Integer">
+        UPDATE prs_user SET update_time=now() WHERE user_id=#{userId}
+    </update>
+
+    <!-- 保存用户注册信息-->
+    <insert id="saveUser">
+        INSERT INTO prs_user(account,password,nickname,phone_number,create_time) VALUES(#{username},#{password},#{nickname},#{phone},now());
+    </insert>
+
+    <!--校验手机号是否注册-->
+    <select id="checkPhone" resultType="java.lang.Integer">
+        SELECT COUNT(user_id) FROM prs_user WHERE phone_number=#{phone} AND status=0
+    </select>
+
+    <!--更新密码-->
+    <update id="updatePassword">
+        UPDATE prs_user SET password=#{password} WHERE status=0 AND phone_number=#{phone}
+    </update>
+
+    <!--热门小说-->
+    <select id="queryHotNovel" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.* FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_collect+pnei.novel_click+pnei.novel_recommend DESC LIMIT 0,6
+    </select>
+
+    <!--总推荐榜-->
+    <select id="queryRecommendList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pnei.novel_recommend DESC LIMIT 0,10
+    </select>
+
+    <!--总字数榜-->
+    <select id="queryWordsList" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id WHERE pn.status>0 ORDER BY pn.novel_words DESC LIMIT 0,10
+    </select>
+
+    <!--最近更新-->
+    <select id="queryNowUpdate" resultType="com.sinocontact.app.entity.Novel">
+        SELECT pn.*,pnei.novel_Recommend,pnei.novel_collect,pnei.novel_click,pnt.type_name AS novelTypeStr FROM prs_novel AS pn LEFT JOIN prs_novel_ext_info AS pnei ON pn.novel_id=pnei.novel_id LEFT JOIN prs_novel_type AS pnt ON pnt.type_id=pn.novel_type WHERE pn.status>0 AND pnt.status=0 ORDER BY pn.last_chapter_update DESC LIMIT 0,19
+    </select>
+
+</mapper>
