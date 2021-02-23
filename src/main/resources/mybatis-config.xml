@@ -5,9 +5,9 @@
 
 <configuration>
 
-    <!--配置mybatis的log实现为LOG4J  -->
-    <!-- 配置后，后台就会有sql语句的输出 -->
     <settings>
+        <!--配置mybatis的log实现为LOG4J  -->
+        <!-- 配置后，后台就会有sql语句的输出 -->
         <setting name="logImpl" value="LOG4J"/>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
