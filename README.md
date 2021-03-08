@@ -1,5 +1,4 @@
 # 前言
-今天突然看到有十几个star了，忘了发SQL不好意思，就给SQL加上吧。
 
 # poet_ready_system
 这是一个说阅读网站，jdk 1.8,使用的框架 Spring boot 和 Mybatis ,前端偷懒使用的事layuiAdmin的后台模板框架，主要是一个爬小说，看小说的。
