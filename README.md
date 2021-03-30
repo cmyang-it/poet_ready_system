@@ -19,4 +19,4 @@
 
 读者和作者的账号，自己可以注册
 
-地址: http://novel.local.cmyang.top  (内网穿透到本地树莓派上的，性能，带宽都不好，大家不要瞎搞，谢谢！！)
+地址: http://novel.local.cmyang.top  (内网穿透本地部署，可能访问不了)
